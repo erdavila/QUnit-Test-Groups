@@ -63,38 +63,64 @@
 		
 		module("TestFilesList");
 		
-		test("TestFilesList()", function() {
-			ok(false, "Implement!");
+		test("TestFilesList()", 1, function() {
+			var testFilesList = new TestFilesList();
+			equal(testFilesList.length, 0);
 		});
 		
-		test("TestFilesList.add()", function() {
-			ok(false, "Implement!");
+		test("TestFilesList.add(): new", 6, function() {
+			var testFilesList = new TestFilesList();
+			
+			var testFile0 = new TestFile("name0", "url0");
+			var result = testFilesList.add(testFile0);
+			equal(result, true);
+			equal(testFilesList.length, 1);
+			deepEqual(testFilesList.get(0), testFile0);
+			
+			var testFile1 = new TestFile("name1", "url1");
+			result = testFilesList.add(testFile1);
+			equal(result, true);
+			equal(testFilesList.length, 2);
+			deepEqual(testFilesList.get(1), testFile1);
 		});
 		
-		test("TestFilesList.get()", function() {
-			ok(false, "Implement!");
+		test("TestFilesList.add(): repeated URL", 6, function() {
+			var testFilesList = new TestFilesList();
+			var sameUrl = "same-url";
+			
+			var testFile0 = new TestFile("name0", sameUrl);
+			var result = testFilesList.add(testFile0);
+			equal(result, true);
+			equal(testFilesList.length, 1);
+			deepEqual(testFilesList.get(0), testFile0);
+			
+			var testFile1 = new TestFile("name1", sameUrl);
+			result = testFilesList.add(testFile1);
+			equal(result, false);
+			equal(testFilesList.length, 1);
+			deepEqual(testFilesList.get(0), testFile0);
 		});
 		
 		
 		module("TestGroup");
 		
-		test("TestGroup()", function() {
+		test("TestGroup()", 1, function() {
 			ok(false, "Implement!");
 		});
 		
-		test("TestGroup.isTestFile()", function() {
+		test("TestGroup.isTestFile()", 1, function() {
 			ok(false, "Implement!");
 		});
 		
-		test("TestGroup.isTestGroup()", function() {
+		test("TestGroup.isTestGroup()", 1, function() {
 			ok(false, "Implement!");
 		});
 		
-		test("TestGroup.getAllTestFiles()", function() {
+		test("TestGroup.getAllTestFiles()", 1, function() {
 			ok(false, "Implement!");
 		});
 		
-		test("TestGroup.run()", function() {
+		test("TestGroup.run()", 1, function() {
 			ok(false, "Implement!");
 		});
 	</script>
