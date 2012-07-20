@@ -1,7 +1,7 @@
+- Implement tests!
+
 - Parameter ?filtergroup=...
 
 - Rendering of outline list (with <ol>) providing selection of tests/groups to run
-
-- Implement tests!
 
 - Review structure of source code.

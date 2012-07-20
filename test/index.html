@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>QUnit Test Groups</title>
+	<link rel="stylesheet" href="../qunit/qunit.css">
+</head>
+<body>
+	<div id="qunit"></div>
+	<script src="../qunit/qunit.js"></script>
+	<script src="../src/qunit-testgroups.js"></script>
+	<script>
+		module("ScriptLoader");
+		
+		test("ScriptLoader.createScriptElement()", 2, function() {
+			var url = "file:///url";
+			var result = ScriptLoader.createScriptElement(url);
+			
+			equal(result.constructor, HTMLScriptElement);
+			equal(result.src, url);
+		});
+		
+		asyncTest("ScriptLoader.load()", 1, function() {
+			var url = "ScriptLoader_load-test.js";
+			ScriptLoader.load(url);
+			
+			var check = function() {
+				strictEqual(window.ScriptLoader_load_test_LOADED, true);
+				start();
+			};
+			setTimeout(check, 100);
+		});
+		
+		
+		module("TestFile");
+		
+		test("TestFile()", function() {
+			ok(false, "Implement!");
+		});
+		
+		
+		module("TestFilesList");
+		
+		test("TestFilesList()", function() {
+			ok(false, "Implement!");
+		});
+		
+		test("TestFilesList.add()", function() {
+			ok(false, "Implement!");
+		});
+		
+		test("TestFilesList.get()", function() {
+			ok(false, "Implement!");
+		});
+		
+		
+		module("TestGroup");
+		
+		test("TestGroup()", function() {
+			ok(false, "Implement!");
+		});
+		
+		test("TestGroup.isTestFile()", function() {
+			ok(false, "Implement!");
+		});
+		
+		test("TestGroup.isTestGroup()", function() {
+			ok(false, "Implement!");
+		});
+		
+		test("TestGroup.getAllTestFiles()", function() {
+			ok(false, "Implement!");
+		});
+		
+		test("TestGroup.run()", function() {
+			ok(false, "Implement!");
+		});
+	</script>
+</body>
