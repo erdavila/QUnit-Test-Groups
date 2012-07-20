@@ -48,6 +48,12 @@ TestGroup.prototype.run = function() {
 
 
 function TestFile(name, url) {
+	if(typeof name != "string") {
+		throw new TypeError("Name should be string");
+	}
+	if(typeof url != "string") {
+		throw new TypeError("URL should be string");
+	}
 	this.name = name;
 	this.url = url;
 }

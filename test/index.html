@@ -34,8 +34,30 @@
 		
 		module("TestFile");
 		
-		test("TestFile()", function() {
-			ok(false, "Implement!");
+		test("TestFile()", 2, function() {
+			var name = "name";
+			var url = "url";
+			var testFile = new TestFile(name, url);
+			equal(testFile.name, name);
+			equal(testFile.url, url);
+		});
+		
+		test("TestFile(): invalid name type", 1, function() {
+			var name = 7;
+			var url = "url";
+			var func = function() {
+				new TestFile(name, url);
+			};
+			throws(func, TypeError);
+		});
+		
+		test("TestFile(): invalid url type", 1, function() {
+			var name = "name";
+			var url = 7;
+			var func = function() {
+				new TestFile(name, url);
+			};
+			throws(func, TypeError);
 		});
 		
 		
