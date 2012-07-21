@@ -3,11 +3,12 @@
 <head>
 	<meta charset="utf-8">
 	<title>QUnit Test Groups</title>
-	<link rel="stylesheet" href="../qunit/qunit.css">
+	<link rel="stylesheet" href="../resources/qunit.css">
 </head>
 <body>
 	<div id="qunit"></div>
-	<script src="../qunit/qunit.js"></script>
+	<script src="../resources/jquery-1.7.2.js"></script>
+	<script src="../resources/qunit.js"></script>
 	<script src="../src/qunit-testgroups.js"></script>
 	<script>
 		module("ScriptLoader");
@@ -21,14 +22,14 @@
 		});
 		
 		asyncTest("ScriptLoader.load()", 1, function() {
-			var url = "ScriptLoader_load-test.js";
-			ScriptLoader.load(url);
-			
 			var check = function() {
 				strictEqual(window.ScriptLoader_load_test_LOADED, true);
 				start();
 			};
 			setTimeout(check, 100);
+			
+			var url = "ScriptLoader_load-test.js";
+			ScriptLoader.load(url);
 		});
 		
 		
@@ -68,60 +69,205 @@
 			equal(testFilesList.length, 0);
 		});
 		
-		test("TestFilesList.add(): new", 6, function() {
+		test("TestFilesList.push(): new", 6, function() {
 			var testFilesList = new TestFilesList();
 			
 			var testFile0 = new TestFile("name0", "url0");
-			var result = testFilesList.add(testFile0);
+			var result = testFilesList.push(testFile0);
 			equal(result, true);
 			equal(testFilesList.length, 1);
 			deepEqual(testFilesList.get(0), testFile0);
 			
 			var testFile1 = new TestFile("name1", "url1");
-			result = testFilesList.add(testFile1);
+			result = testFilesList.push(testFile1);
 			equal(result, true);
 			equal(testFilesList.length, 2);
 			deepEqual(testFilesList.get(1), testFile1);
 		});
 		
-		test("TestFilesList.add(): repeated URL", 6, function() {
+		test("TestFilesList.push(): repeated URL", 6, function() {
 			var testFilesList = new TestFilesList();
 			var sameUrl = "same-url";
 			
 			var testFile0 = new TestFile("name0", sameUrl);
-			var result = testFilesList.add(testFile0);
+			var result = testFilesList.push(testFile0);
 			equal(result, true);
 			equal(testFilesList.length, 1);
 			deepEqual(testFilesList.get(0), testFile0);
 			
 			var testFile1 = new TestFile("name1", sameUrl);
-			result = testFilesList.add(testFile1);
+			result = testFilesList.push(testFile1);
 			equal(result, false);
 			equal(testFilesList.length, 1);
 			deepEqual(testFilesList.get(0), testFile0);
 		});
 		
+		test("TestFilesList.asArray()", 4, function() {
+			var testFilesList = new TestFilesList();
+			
+			var testFile0 = new TestFile("name0", "url0");
+			var testFile1 = new TestFile("name1", "url1");
+			
+			testFilesList.push(testFile0);
+			testFilesList.push(testFile1);
+			
+			var array = testFilesList.asArray();
+			ok($.isArray(array));
+			equal(array.length, 2);
+			deepEqual(array[0], testFile0);
+			deepEqual(array[1], testFile1);
+		});
+		
 		
 		module("TestGroup");
 		
-		test("TestGroup()", 1, function() {
-			ok(false, "Implement!");
+		test("TestGroup()", 11, function() {
+			var name = "name";
+			var items = [
+				new TestFile("name1", "url1"),
+				new TestGroup("other", []),
+				{ name: "name2", url: "url2" },
+			];
+			
+			var testGroup = new TestGroup(name, items);
+			
+			equal(testGroup.name, name);
+			equal(testGroup.items.length, items.length);
+			
+			ok(TestGroup.isTestFile(testGroup.items[0]));
+			ok(TestGroup.isTestGroup(testGroup.items[1]));
+			ok(TestGroup.isTestFile(testGroup.items[2]));
+			
+			equal(testGroup.items[0].name, items[0].name);
+			equal(testGroup.items[1].name, items[1].name);
+			equal(testGroup.items[2].name, items[2].name);
+			
+			equal(testGroup.items[0].url, items[0].url);
+			equal(testGroup.items[1].items.length, items[1].items.length);
+			equal(testGroup.items[2].url, items[2].url);
 		});
 		
-		test("TestGroup.isTestFile()", 1, function() {
-			ok(false, "Implement!");
+		test("TestGroup(): invalid name type", 1, function() {
+			var name = 7;
+			var items = [];
+			var func = function() {
+				new TestGroup(name, items);
+			};
+			throws(func, TypeError);
 		});
 		
-		test("TestGroup.isTestGroup()", 1, function() {
-			ok(false, "Implement!");
+		test("TestGroup(): invalid items type", 1, function() {
+			var name = "name";
+			var items = "items";
+			var func = function() {
+				new TestGroup(name, items);
+			};
+			throws(func, TypeError);
 		});
 		
-		test("TestGroup.getAllTestFiles()", 1, function() {
-			ok(false, "Implement!");
+		test("TestGroup.isTestFile(TestFile)", 1, function() {
+			var item = new TestFile("name", "url");
+			var result = TestGroup.isTestFile(item);
+			equal(result, true);
 		});
 		
-		test("TestGroup.run()", 1, function() {
-			ok(false, "Implement!");
+		test("TestGroup.isTestFile(undefined)", 1, function() {
+			var item = undefined;
+			var result = TestGroup.isTestFile(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.isTestFile(null)", 1, function() {
+			var item = null;
+			var result = TestGroup.isTestFile(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.isTestFile(\"string\")", 1, function() {
+			var item = "string";
+			var result = TestGroup.isTestFile(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.isTestFile({})", 1, function() {
+			var item = {};
+			var result = TestGroup.isTestFile(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.isTestGroup(TestGroup)", 1, function() {
+			var item = new TestGroup("name", []);
+			var result = TestGroup.isTestGroup(item);
+			equal(result, true);
+		});
+		
+		test("TestGroup.isTestGroup(undefined)", 1, function() {
+			var item = undefined;
+			var result = TestGroup.isTestGroup(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.isTestGroup(null)", 1, function() {
+			var item = null;
+			var result = TestGroup.isTestGroup(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.isTestGroup(\"string\")", 1, function() {
+			var item = "string";
+			var result = TestGroup.isTestGroup(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.isTestGroup({})", 1, function() {
+			var item = {};
+			var result = TestGroup.isTestGroup(item);
+			equal(result, false);
+		});
+		
+		test("TestGroup.getAllTestFiles()", 10, function() {
+			var testFile0 = new TestFile("file0", "url0");
+			var testFile1 = new TestFile("file1", "url1");
+			var testFile2 = { name: "file2", url: "url2" };
+			
+			
+			var testGroup = new TestGroup("group", [
+				testFile0,
+				new TestGroup("sub-group", [
+					testFile1,
+				]),
+				testFile2,
+			]);
+			
+			var testFiles = testGroup.getAllTestFiles();
+			equal(testFiles.length, 3);
+			
+			ok(TestGroup.isTestFile(testFiles[0]));
+			ok(TestGroup.isTestFile(testFiles[1]));
+			ok(TestGroup.isTestFile(testFiles[2]));
+			
+			equal(testFiles[0].name, testFile0.name);
+			equal(testFiles[1].name, testFile1.name);
+			equal(testFiles[2].name, testFile2.name);
+			
+			equal(testFiles[0].url, testFile0.url);
+			equal(testFiles[1].url, testFile1.url);
+			equal(testFiles[2].url, testFile2.url);
+		});
+		
+		asyncTest("TestGroup.loadAndRun()", 2, function() {
+			var check = function() {
+				strictEqual(window.TestGroup_loadAndRun_0_test_LOADED, true);
+				strictEqual(window.TestGroup_loadAndRun_1_test_LOADED, true);
+				start();
+			};
+			setTimeout(check, 100);
+			
+			var testFile0 = new TestFile("name0", "TestGroup_loadAndRun-0-test.js");
+			var testFile1 = new TestFile("name1", "TestGroup_loadAndRun-1-test.js");
+			
+			var testGroup = new TestGroup("group", [testFile0, testFile1]);
+			testGroup.loadAndRun();
 		});
 	</script>
 </body>

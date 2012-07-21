@@ -3,15 +3,15 @@
 <head>
 	<meta charset="utf-8">
 	<title>QUnit Example</title>
-	<link rel="stylesheet" href="../qunit/qunit.css">
+	<link rel="stylesheet" href="../resources/qunit.css">
 </head>
 <body>
 	<div id="qunit"></div>
-	<script src="../qunit/qunit.js"></script>
+	<script src="../resources/jquery-1.7.2.js"></script>
+	<script src="../resources/qunit.js"></script>
 	<script src="../src/qunit-testgroups.js"></script>
 	<script src="tests-groups.js"></script>
 	<script>
-		allTests.run();
-		//testsA.run();
+		allTests.loadAndRun();
 	</script>
 </body>

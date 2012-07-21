@@ -1,7 +1,7 @@
-- Implement tests!
-
 - Parameter ?filtergroup=...
 
 - Rendering of outline list (with <ol>) providing selection of tests/groups to run
 
 - Review structure of source code.
+
+- THINK ABOUT: drop support of {name:, url:} (should use TestFile).

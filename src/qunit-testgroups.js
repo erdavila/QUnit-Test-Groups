@@ -1,47 +1,56 @@
-function TestGroup(name, components) {
+function TestGroup(name, items) {
+	if(typeof name != "string") {
+		throw new TypeError("Name should be string");
+	}
+	if(! $.isArray(items)) {
+		throw new TypeError("items should be array");
+	}
 	this.name = name;
-	this.components = [];
-	for(var i = 0; i < components.length; i++) {
-		var component = components[i];
-		if(!TestGroup.isTestGroup(component)  &&  !TestGroup.isTestFile(component)) {
-			component = new TestFile(component.name, component.url);
+	this.items = [];
+	for(var i = 0; i < items.length; i++) {
+		var item = items[i];
+		if(!TestGroup.isTestGroup(item)  &&  !TestGroup.isTestFile(item)) {
+			item = new TestFile(item.name, item.url);
 		}
-		this.components.push(component);
+		this.items.push(item);
 	}
 }
 
-TestGroup.isTestFile = function(component) {
-	var result = (component.constructor == TestFile);
+TestGroup.isTestFile = function(item) {
+	var result = (typeof item == "object")
+	         &&  (item != null)
+	         &&  (item.constructor == TestFile);
 	return result;
 };
 
-TestGroup.isTestGroup = function(component) {
-	var result = (component.constructor == TestGroup);
+TestGroup.isTestGroup = function(item) {
+	var result = (typeof item == "object")
+	         &&  (item != null)
+	         &&  (item.constructor == TestGroup);
 	return result;
 };
 
 TestGroup.prototype.getAllTestFiles = function() {
 	var testFilesList = new TestFilesList();
-	
-	for(var i = 0; i < this.components.length; i++) {
-		var component = this.components[i];
-		if(TestGroup.isTestFile(component)) {
-			testFilesList.add(component);
-		} else {
-			var testFiles = component.getAllTestFiles();
-			for(var j = 0; j < testFiles.length; j++) {
-				var testFile = testFiles.get(j);
-				testFilesList.add(testFile);
-			}
-		}
-	}
-	return testFilesList;
+	this.addTestFilesToList(testFilesList);
+	return testFilesList.asArray();
 };
 
-TestGroup.prototype.run = function() {
+TestGroup.prototype.addTestFilesToList = function(list) {
+	for(var i = 0; i < this.items.length; i++) {
+		var item = this.items[i];
+		if(TestGroup.isTestGroup(item)) {
+			item.addTestFilesToList(list);
+		} else {
+			list.push(item);
+		}
+	}
+};
+
+TestGroup.prototype.loadAndRun = function() {
 	var testFiles = this.getAllTestFiles();
 	for(var i = 0; i < testFiles.length; i++) {
-		var testFile = testFiles.get(i);
+		var testFile = testFiles[i];
 		ScriptLoader.load(testFile.url);
 	}
 };
@@ -65,7 +74,7 @@ function TestFilesList() {
 	this.urls = {};
 }
 
-TestFilesList.prototype.add = function(testFile) {
+TestFilesList.prototype.push = function(testFile) {
 	var url = testFile.url;
 	if(url in this.urls) {
 		console.log("Already added to TestFilesList:", url);
@@ -76,6 +85,11 @@ TestFilesList.prototype.add = function(testFile) {
 		this.urls[url] = testFile;
 		return true;
 	}
+};
+
+TestFilesList.prototype.asArray = function() {
+	var array = $.makeArray(this.testFiles);
+	return array;
 };
 
 TestFilesList.prototype.get = function(index) {
