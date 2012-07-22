@@ -55,6 +55,21 @@ TestGroup.prototype.loadAndRun = function() {
 	}
 };
 
+TestGroup.prototype.searchByName = function(name) {
+	for(var i = 0; i < this.items.length; i++) {
+		var item = this.items[i];
+		if(item.name == name) {
+			return item;
+		}
+		if(TestGroup.isTestGroup(item)) {
+			var test = item.searchByName(name);
+			if(test) {
+				return test;
+			}
+		}
+	}
+};
+
 
 function TestFile(name, url) {
 	if(typeof name != "string") {

@@ -280,5 +280,96 @@
 			var testGroup = new TestGroup("group", [testFile0, testFile1]);
 			testGroup.loadAndRun();
 		});
+		
+		test("TestGroup.searchByName(): file near", 1, function() {
+			var testFile0 = new TestFile("file0", "url0");
+			var testFile1 = new TestFile("file1", "url1");
+			var testFile2 = { name: "file2", url: "url2" };
+			
+			var testGroup = new TestGroup("group", [
+				testFile0,
+				new TestGroup("sub-group", [
+					testFile1,
+				]),
+				testFile2,
+			]);
+			
+			var test = testGroup.searchByName("file0");
+			deepEqual(test, testFile0);
+		});
+		
+		test("TestGroup.searchByName(): file farther", 1, function() {
+			var testFile0 = new TestFile("file0", "url0");
+			var testFile1 = new TestFile("file1", "url1");
+			var testFile2 = { name: "file2", url: "url2" };
+			
+			var testGroup = new TestGroup("group", [
+				testFile0,
+				new TestGroup("sub-group", [
+					testFile1,
+				]),
+				testFile2,
+			]);
+			
+			var test = testGroup.searchByName("file1");
+			deepEqual(test, testFile1);
+		});
+		
+		test("TestGroup.searchByName(): group", 1, function() {
+			var testFile0 = new TestFile("file0", "url0");
+			var testFile1 = new TestFile("file1", "url1");
+			var testFile2 = { name: "file2", url: "url2" };
+			
+			var subGroup = new TestGroup("sub-group", [
+				testFile1,
+			]);
+			
+			var testGroup = new TestGroup("group", [
+				testFile0,
+				subGroup,
+				testFile2,
+			]);
+			
+			var test = testGroup.searchByName("sub-group");
+			deepEqual(test, subGroup);
+		});
+		
+		test("TestGroup.searchByName(): not found", 1, function() {
+			var testFile0 = new TestFile("file0", "url0");
+			var testFile1 = new TestFile("file1", "url1");
+			var testFile2 = { name: "file2", url: "url2" };
+			
+			var subGroup = new TestGroup("sub-group", [
+				testFile1,
+			]);
+			
+			var testGroup = new TestGroup("group", [
+				testFile0,
+				subGroup,
+				testFile2,
+			]);
+			
+			var test = testGroup.searchByName("not found");
+			deepEqual(test, undefined);
+		});
+		
+		test("TestGroup.searchByName(): not found (same root)", 1, function() {
+			var testFile0 = new TestFile("file0", "url0");
+			var testFile1 = new TestFile("file1", "url1");
+			var testFile2 = { name: "file2", url: "url2" };
+			
+			var subGroup = new TestGroup("sub-group", [
+				testFile1,
+			]);
+			
+			var testGroup = new TestGroup("group", [
+				testFile0,
+				subGroup,
+				testFile2,
+			]);
+			
+			var test = testGroup.searchByName("group");
+			deepEqual(test, undefined);
+		});
 	</script>
 </body>
