@@ -51,7 +51,7 @@ TestGroup.prototype.loadAndRun = function() {
 	var testFiles = this.getAllTestFiles();
 	for(var i = 0; i < testFiles.length; i++) {
 		var testFile = testFiles[i];
-		ScriptLoader.load(testFile.url);
+		testFile.loadAndRun();
 	}
 };
 
@@ -66,6 +66,10 @@ function TestFile(name, url) {
 	this.name = name;
 	this.url = url;
 }
+
+TestFile.prototype.loadAndRun = function() {
+	ScriptLoader.load(this.url);
+};
 
 
 function TestFilesList() {

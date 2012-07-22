@@ -61,6 +61,17 @@
 			throws(func, TypeError);
 		});
 		
+		asyncTest("TestFile.loadAndRun()", 1, function() {
+			var check = function() {
+				strictEqual(window.TestFile_loadAndRun_test_LOADED, true);
+				start();
+			};
+			setTimeout(check, 100);
+			
+			var testFile = new TestFile("name", "TestFile_loadAndRun-test.js");
+			testFile.loadAndRun();
+		});
+		
 		
 		module("TestFilesList");
 		
