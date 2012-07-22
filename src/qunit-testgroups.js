@@ -30,6 +30,32 @@ TestGroup.isTestGroup = function(item) {
 	return result;
 };
 
+TestGroup._loadAndRunTestByUrlArg = function(rootTestGroup) {
+	var name = this._extractGroupFilterArg();
+	var test;
+	if(name) {
+		if(rootTestGroup.name == name) {
+			test = rootTestGroup;
+		} else {
+			test = rootTestGroup.searchByName(name);
+		}
+	} else {
+		test = rootTestGroup;
+	}
+	if(test) {
+		test.loadAndRun();
+	}
+};
+
+TestGroup.rootTestGroup = TestGroup._loadAndRunTestByUrlArg;
+
+TestGroup._extractGroupFilterArg = function() {
+	var m = document.location.search.match(/[\?&]groupfilter=([^&]*)/);
+	return m
+	     ? unescape(m[1])
+	     : undefined;
+};
+
 TestGroup.prototype.getAllTestFiles = function() {
 	var testFilesList = new TestFilesList();
 	this.addTestFilesToList(testFilesList);
