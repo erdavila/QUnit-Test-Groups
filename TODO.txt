@@ -1,5 +1,3 @@
 - Ensure order of dynamically loaded scripts.
 
-- Rendering of outline list (with <ul>) providing selection of tests/groups to run
-
 - Review structure of source code.

@@ -56,6 +56,13 @@ TestGroup._extractGroupFilterArg = function() {
 	     : undefined;
 };
 
+TestGroup._makeOutlineLink = function(name, baseUrl) {
+	var link = $("<a/>");
+	link.attr("href", baseUrl + "?groupfilter=" + escape(name));
+	link.text(name);
+	return link;
+};
+
 TestGroup.prototype.getAllTestFiles = function() {
 	var testFilesList = new TestFilesList();
 	this.addTestFilesToList(testFilesList);
@@ -96,6 +103,35 @@ TestGroup.prototype.searchByName = function(name) {
 	}
 };
 
+TestGroup.prototype.outline = function(baseUrl) {
+	var item = this._outlineItem(baseUrl);
+	var outline = $("<ul>/");
+	outline.append(item);
+	return outline;
+};
+
+TestGroup.prototype._outlineItem = function(baseUrl) {
+	var item = $("<li/>");
+	
+	var link = TestGroup._makeOutlineLink(this.name, baseUrl);
+	item.append(link);
+	
+	var itemsList = this._outlineItemsList(baseUrl);
+	item.append(itemsList);
+	
+	return item;
+};
+
+TestGroup.prototype._outlineItemsList = function(baseUrl) {
+	var list = $("<ul/>");
+	for(var i = 0; i < this.items.length; i++) {
+		var item = this.items[i];
+		var listItem = item._outlineItem(baseUrl);
+		list.append(listItem);
+	}
+	return list;
+};
+
 
 function TestFile(name, url) {
 	if(typeof name != "string") {
@@ -110,6 +146,15 @@ function TestFile(name, url) {
 
 TestFile.prototype.loadAndRun = function() {
 	ScriptLoader.load(this.url);
+};
+
+TestFile.prototype._outlineItem = function(baseUrl) {
+	var item = $("<li/>");
+	
+	var link = TestGroup._makeOutlineLink(this.name, baseUrl);
+	item.append(link);
+	
+	return item;
 };
 
 
