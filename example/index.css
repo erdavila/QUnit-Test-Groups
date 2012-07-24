@@ -1,0 +1,21 @@
+body {
+	font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+	font-size: small;
+}
+h1 {
+	font-weight: normal;
+	color: lightgray;
+	background-color: teal;
+	padding: 6px;
+	padding-left: 20px;
+	border-radius: 5px;
+}
+#box {
+	background-color: #FFFFCC;
+	padding: 6px;
+	border-style: dashed;
+	border-width: 1px;
+}
+ul, li {
+	list-style-type: square;
+}
