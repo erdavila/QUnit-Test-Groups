@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>QUnit Test Groups Outline Example</title>
+	<link rel="stylesheet" href="index.css">
+	<script src="../resources/jquery-1.7.2.js"></script>
+	<script src="../src/qunit-testgroups.js"></script>
+	<script src="tests-groups.js"></script>
+	<script>
+		$(document).ready(function() {
+			var outline = allTests.outline("tests.html");
+			$(document.body).append(outline);
+		});
+	</script>
+</head>
+<body>
+	<h1 id="qunit-header">QUnit Test Groups example</h1>
+	<div id="box">
+		The outline below is automatically generated according to the hierarchy
+		of tests that was defined.
+		<br/>
+		Click on an item to run its tests.
+	</div>
+</body>
