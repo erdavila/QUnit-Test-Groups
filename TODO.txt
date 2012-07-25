@@ -32,8 +32,6 @@
 		],
 	};
 
-- Make tests pass with "Check for Globals".
-
 - Checkboxes "Hide passed tests", "Check for Globals" and "No try-catch" in the outline: pass the option to the opened page.
 
 - Outline option to open page in a new tab.

@@ -1,3 +1,5 @@
+var LOAD_WAIT_TIMEOUT = 100;
+
 module("ScriptLoader");
 
 test("ScriptLoader.createScriptElement()", 2, function() {
@@ -12,8 +14,9 @@ asyncTest("ScriptLoader.load()", 1, function() {
 	var check = function() {
 		strictEqual(window.ScriptLoader_load_test_LOADED, true);
 		start();
+		delete window.ScriptLoader_load_test_LOADED;
 	};
-	setTimeout(check, 100);
+	setTimeout(check, LOAD_WAIT_TIMEOUT);
 	
 	var url = "ScriptLoader_load-test.js";
 	ScriptLoader.load(url);
@@ -262,9 +265,10 @@ test("TestFile(): invalid file type", 1, function() {
 asyncTest("TestFile.loadAndRun()", 1, function() {
 	var check = function() {
 		strictEqual(window.TestFile_loadAndRun_test_LOADED, true);
+		delete window.TestFile_loadAndRun_test_LOADED;
 		start();
 	};
-	setTimeout(check, 100);
+	setTimeout(check, LOAD_WAIT_TIMEOUT);
 	
 	var testFile = new TestFile("name", "TestFile_loadAndRun-test.js");
 	testFile.loadAndRun();
@@ -407,9 +411,11 @@ asyncTest("TestGroup.loadAndRun()", 2, function() {
 	var check = function() {
 		strictEqual(window.TestGroup_loadAndRun_0_test_LOADED, true);
 		strictEqual(window.TestGroup_loadAndRun_1_test_LOADED, true);
+		delete window.TestGroup_loadAndRun_0_test_LOADED;
+		delete window.TestGroup_loadAndRun_1_test_LOADED;
 		start();
 	};
-	setTimeout(check, 100);
+	setTimeout(check, LOAD_WAIT_TIMEOUT);
 	
 	var testFile0 = new TestFile("name0", "TestGroup_loadAndRun-0-test.js");
 	var testFile1 = new TestFile("name1", "TestGroup_loadAndRun-1-test.js");
