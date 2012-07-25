@@ -1,5 +1,6 @@
-- Documentation & Licensing.
-	Document that dynamic loading breaks on Firefox if running under file://
+- Documentation (in wiki)
+	- How to use.
+	- Known issue: error on dynamic loading breaks on Firefox if running under file://
 
 - Ensure order of dynamically loaded scripts.
 
