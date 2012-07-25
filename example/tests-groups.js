@@ -1,26 +1,46 @@
-var testA1 = { url : "../example/test-A1.js", name : "A1" };
-var testA2 = { url : "../example/test-A2.js", name : "A2" };
-var testB1 = { url : "../example/test-B1.js", name : "B1" };
-var testB2 = { url : "../example/test-B2.js", name : "B2" };
+var testsComponentXIntegration = {
+	name: "Component X - integration tests",
+	url: "test-X-integration.js",
+};
 
-var testsA = new TestGroup("Tests A", [
-	testA1,
-	testA2,
+var testsComponentYIntegration = {
+	name: "Component Y - integration tests",
+	url: "test-Y-integration.js",
+};
+
+var testsUtils = {
+	name: "Utils",
+	url: "test-utils.js",
+};
+
+
+var testsComponentX = new TestGroup("Component X", [
+	{ name: "Component X - function a()", url: "test-X-a.js"},
+	{ name: "Component X - function b()", url: "test-X-b.js"},
+	{ name: "Component X - function c()", url: "test-X-c.js"},
+	{ name: "Component X - function d()", url: "test-X-d.js"},
+	testsComponentXIntegration,
+	testsUtils,
 ]);
 
-var testsB = new TestGroup("Tests B", [
-	testB1,
-	testB2,
+
+var testsComponentY = new TestGroup("Component Y", [
+	{ name: "Component Y - function i()", url: "test-Y-i.js"},
+	{ name: "Component Y - function j()", url: "test-Y-j.js"},
+	{ name: "Component Y - function k()", url: "test-Y-k.js"},
+	testsComponentYIntegration,
 ]);
 
-var tests2 = new TestGroup("Tests 2", [
-	testA2,
-	testB2,
+
+var testsIntegration = new TestGroup("Integration Tests", [
+	testsComponentXIntegration,
+	testsComponentYIntegration,
 ]);
+
 
 var allTests = new TestGroup("All Tests", [
-	testsA,
-	testsB,
-	testA1,
-	tests2,
+	testsComponentX,
+	testsComponentY,
+	testsIntegration,
+	testsUtils,
 ]);
