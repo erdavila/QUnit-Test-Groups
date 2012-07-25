@@ -1,60 +1,97 @@
+/*
+Copyright (c) 2012 Eduardo R. D'Avila (https://github.com/erdavila)
+
+The MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
+var TestGroups = {
+	root : function(testGroup) {
+		if(!TestGroups.isTestGroup(testGroup)) {
+			throw new TypeError("Argument should be a test group");
+		}
+		TestGroups._root = testGroup;
+	},
+	_shouldLoadAndRunTests : function() {
+		var qunitElement = $("#qunit");
+		var hasQUnitElement = qunitElement.length > 0;
+		return hasQUnitElement;
+	},
+	_loadAndRunTestByUrlArg : function() {
+		var name = this._extractGroupFilterArg();
+		var test;
+		if(name) {
+			if(this._root.name == name) {
+				test = this._root;
+			} else {
+				test = this._root.searchByName(name);
+			}
+		} else {
+			test = this._root;
+		}
+		if(test) {
+			test.loadAndRun();
+		}
+	},
+	_extractGroupFilterArg : function() {
+		var m = document.location.search.match(/[\?&]groupfilter=([^&]*)/);
+		return m
+		     ? unescape(m[1])
+		     : undefined;
+	},
+	isTestFile : function(item) {
+		var result = (typeof item == "object")
+		         &&  (item != null)
+		         &&  (item.constructor == TestFile);
+		return result;
+	},
+	isTestGroup : function(item) {
+		var result = (typeof item == "object")
+		         &&  (item != null)
+		         &&  (item.constructor == TestGroup);
+		return result;
+	},
+	outline : function(baseUrl) {
+		var outline = this._root.outline(baseUrl);
+		return outline;
+	},
+};
+
+
 function TestGroup(name, items) {
 	if(typeof name != "string") {
-		throw new TypeError("Name should be string");
+		throw new TypeError("name argument should be string");
 	}
 	if(! $.isArray(items)) {
-		throw new TypeError("items should be array");
+		throw new TypeError("items argument should be an array");
 	}
 	this.name = name;
 	this.items = [];
 	for(var i = 0; i < items.length; i++) {
 		var item = items[i];
-		if(!TestGroup.isTestGroup(item)  &&  !TestGroup.isTestFile(item)) {
-			item = new TestFile(item.name, item.url);
+		if(!TestGroups.isTestGroup(item)  &&  !TestGroups.isTestFile(item)) {
+			item = new TestFile(item.name, item.file);
 		}
 		this.items.push(item);
 	}
 }
-
-TestGroup.isTestFile = function(item) {
-	var result = (typeof item == "object")
-	         &&  (item != null)
-	         &&  (item.constructor == TestFile);
-	return result;
-};
-
-TestGroup.isTestGroup = function(item) {
-	var result = (typeof item == "object")
-	         &&  (item != null)
-	         &&  (item.constructor == TestGroup);
-	return result;
-};
-
-TestGroup._loadAndRunTestByUrlArg = function(rootTestGroup) {
-	var name = this._extractGroupFilterArg();
-	var test;
-	if(name) {
-		if(rootTestGroup.name == name) {
-			test = rootTestGroup;
-		} else {
-			test = rootTestGroup.searchByName(name);
-		}
-	} else {
-		test = rootTestGroup;
-	}
-	if(test) {
-		test.loadAndRun();
-	}
-};
-
-TestGroup.rootTestGroup = TestGroup._loadAndRunTestByUrlArg;
-
-TestGroup._extractGroupFilterArg = function() {
-	var m = document.location.search.match(/[\?&]groupfilter=([^&]*)/);
-	return m
-	     ? unescape(m[1])
-	     : undefined;
-};
 
 TestGroup._makeOutlineLink = function(name, baseUrl) {
 	var link = $("<a/>");
@@ -72,7 +109,7 @@ TestGroup.prototype.getAllTestFiles = function() {
 TestGroup.prototype.addTestFilesToList = function(list) {
 	for(var i = 0; i < this.items.length; i++) {
 		var item = this.items[i];
-		if(TestGroup.isTestGroup(item)) {
+		if(TestGroups.isTestGroup(item)) {
 			item.addTestFilesToList(list);
 		} else {
 			list.push(item);
@@ -94,7 +131,7 @@ TestGroup.prototype.searchByName = function(name) {
 		if(item.name == name) {
 			return item;
 		}
-		if(TestGroup.isTestGroup(item)) {
+		if(TestGroups.isTestGroup(item)) {
 			var test = item.searchByName(name);
 			if(test) {
 				return test;
@@ -133,19 +170,19 @@ TestGroup.prototype._outlineItemsList = function(baseUrl) {
 };
 
 
-function TestFile(name, url) {
+function TestFile(name, file) {
 	if(typeof name != "string") {
-		throw new TypeError("Name should be string");
+		throw new TypeError("Name argument should be string");
 	}
-	if(typeof url != "string") {
-		throw new TypeError("URL should be string");
+	if(typeof file != "string") {
+		throw new TypeError("File argument should be string");
 	}
 	this.name = name;
-	this.url = url;
+	this.file = file;
 }
 
 TestFile.prototype.loadAndRun = function() {
-	ScriptLoader.load(this.url);
+	ScriptLoader.load(this.file);
 };
 
 TestFile.prototype._outlineItem = function(baseUrl) {
@@ -161,18 +198,18 @@ TestFile.prototype._outlineItem = function(baseUrl) {
 function TestFilesList() {
 	this.testFiles = [];
 	this.length = this.testFiles.length;
-	this.urls = {};
+	this.files = {};
 }
 
 TestFilesList.prototype.push = function(testFile) {
-	var url = testFile.url;
-	if(url in this.urls) {
-		console.log("Already added to TestFilesList:", url);
+	var file = testFile.file;
+	if(file in this.files) {
+		console.log("Already added to TestFilesList:", file);
 		return false;
 	} else {
 		this.testFiles.push(testFile);
 		this.length = this.testFiles.length;
-		this.urls[url] = testFile;
+		this.files[file] = testFile;
 		return true;
 	}
 };
@@ -199,3 +236,10 @@ ScriptLoader = {
 		return scriptElement;
 	},
 };
+
+
+$(document).ready(function() {
+	if(TestGroups._shouldLoadAndRunTests()) {
+		TestGroups._loadAndRunTestByUrlArg();
+	}
+});
