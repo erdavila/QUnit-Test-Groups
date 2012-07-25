@@ -1,3 +1,5 @@
+- Make tests pass in Chrome/Firefox/IE/Opera/Safari.
+
 - Documentation (in wiki)
 	- How to use.
 	- Known issue: error on dynamic loading breaks on Firefox if running under file://
@@ -9,6 +11,7 @@
 - Support for simpler objects:
 	{"name":name, "file": file}  is the same as  new TestFile(name, file)
 	{"name":name, "items": items}  is the same as  new TestGroup(name, items)
+	-> Eliminate classes TestFile and TestGroup and turn static all methods (into TestGroups)?
 	
 	var rootTestGroup = {
 		name : "All Tests",
@@ -29,24 +32,13 @@
 		],
 	};
 
-- Run tests in Firefox and IE.
-
 - Make tests pass with "Check for Globals".
 
 - Checkboxes "Hide passed tests", "Check for Globals" and "No try-catch" in the outline: pass the option to the opened page.
 
 - Outline option to open page in a new tab.
 
-- Outline could be automatically appended
-	- to document.body
-	- or to an element specified in an argument.
-
 - Refactor tests:
 	- Separate in *.js files.
-	- Reuse same fixtures in modules TestGroup.searchByName and TestGroup._loadAndRunTestByUrlArg.
+	- Reuse same fixtures in modules TestGroup.searchByName and TestGroups._loadAndRunTestByUrlArg.
 	- Use QUnit Test Groups to test QUnit Test Groups!
-
-- Think about:
-	* root group should be defined together with all groups (in tests-groups.js).
-	* TestGroup.outline() (in index.html) should render according to defined root.
-	* TestGroup.runSelectedTests() (in tests.html) should run tests.

@@ -22,63 +22,76 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 
+var TestGroups = {
+	root : function(testGroup) {
+		if(!TestGroups.isTestGroup(testGroup)) {
+			throw new TypeError("Argument should be a test group");
+		}
+		TestGroups._root = testGroup;
+	},
+	_shouldLoadAndRunTests : function() {
+		var qunitElement = $("#qunit");
+		var hasQUnitElement = qunitElement.length > 0;
+		return hasQUnitElement;
+	},
+	_loadAndRunTestByUrlArg : function() {
+		var name = this._extractGroupFilterArg();
+		var test;
+		if(name) {
+			if(this._root.name == name) {
+				test = this._root;
+			} else {
+				test = this._root.searchByName(name);
+			}
+		} else {
+			test = this._root;
+		}
+		if(test) {
+			test.loadAndRun();
+		}
+	},
+	_extractGroupFilterArg : function() {
+		var m = document.location.search.match(/[\?&]groupfilter=([^&]*)/);
+		return m
+		     ? unescape(m[1])
+		     : undefined;
+	},
+	isTestFile : function(item) {
+		var result = (typeof item == "object")
+		         &&  (item != null)
+		         &&  (item.constructor == TestFile);
+		return result;
+	},
+	isTestGroup : function(item) {
+		var result = (typeof item == "object")
+		         &&  (item != null)
+		         &&  (item.constructor == TestGroup);
+		return result;
+	},
+	outline : function(baseUrl) {
+		var outline = this._root.outline(baseUrl);
+		return outline;
+	},
+};
+
+
 function TestGroup(name, items) {
 	if(typeof name != "string") {
-		throw new TypeError("Name should be string");
+		throw new TypeError("name argument should be string");
 	}
 	if(! $.isArray(items)) {
-		throw new TypeError("items should be array");
+		throw new TypeError("items argument should be an array");
 	}
 	this.name = name;
 	this.items = [];
 	for(var i = 0; i < items.length; i++) {
 		var item = items[i];
-		if(!TestGroup.isTestGroup(item)  &&  !TestGroup.isTestFile(item)) {
+		if(!TestGroups.isTestGroup(item)  &&  !TestGroups.isTestFile(item)) {
 			item = new TestFile(item.name, item.file);
 		}
 		this.items.push(item);
 	}
 }
-
-TestGroup.isTestFile = function(item) {
-	var result = (typeof item == "object")
-	         &&  (item != null)
-	         &&  (item.constructor == TestFile);
-	return result;
-};
-
-TestGroup.isTestGroup = function(item) {
-	var result = (typeof item == "object")
-	         &&  (item != null)
-	         &&  (item.constructor == TestGroup);
-	return result;
-};
-
-TestGroup._loadAndRunTestByUrlArg = function(rootTestGroup) {
-	var name = this._extractGroupFilterArg();
-	var test;
-	if(name) {
-		if(rootTestGroup.name == name) {
-			test = rootTestGroup;
-		} else {
-			test = rootTestGroup.searchByName(name);
-		}
-	} else {
-		test = rootTestGroup;
-	}
-	if(test) {
-		test.loadAndRun();
-	}
-};
-
-TestGroup.rootTestGroup = TestGroup._loadAndRunTestByUrlArg;
-
-TestGroup._extractGroupFilterArg = function() {
-	var m = document.location.search.match(/[\?&]groupfilter=([^&]*)/);
-	return m
-	     ? unescape(m[1])
-	     : undefined;
-};
 
 TestGroup._makeOutlineLink = function(name, baseUrl) {
 	var link = $("<a/>");
@@ -96,7 +109,7 @@ TestGroup.prototype.getAllTestFiles = function() {
 TestGroup.prototype.addTestFilesToList = function(list) {
 	for(var i = 0; i < this.items.length; i++) {
 		var item = this.items[i];
-		if(TestGroup.isTestGroup(item)) {
+		if(TestGroups.isTestGroup(item)) {
 			item.addTestFilesToList(list);
 		} else {
 			list.push(item);
@@ -118,7 +131,7 @@ TestGroup.prototype.searchByName = function(name) {
 		if(item.name == name) {
 			return item;
 		}
-		if(TestGroup.isTestGroup(item)) {
+		if(TestGroups.isTestGroup(item)) {
 			var test = item.searchByName(name);
 			if(test) {
 				return test;
@@ -223,3 +236,10 @@ ScriptLoader = {
 		return scriptElement;
 	},
 };
+
+
+$(document).ready(function() {
+	if(TestGroups._shouldLoadAndRunTests()) {
+		TestGroups._loadAndRunTestByUrlArg();
+	}
+});

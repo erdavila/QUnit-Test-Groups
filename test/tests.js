@@ -20,6 +20,217 @@ asyncTest("ScriptLoader.load()", 1, function() {
 });
 
 
+module("TestGroups");
+
+test("TestGroups.root(TestGroup)", 1, function() {
+	var testGroup = new TestGroup("name", []);
+	
+	delete TestGroups._root;
+	TestGroups.root(testGroup);
+	
+	deepEqual(TestGroups._root, testGroup);
+});
+
+test("TestGroups.root(not TestGroup)", 2, function() {
+	var notTestGroup = null;
+	
+	delete TestGroups._root;
+	
+	var func = function() {
+		TestGroups.root(notTestGroup);
+	};
+	
+	throws(func, TypeError);
+	
+	equal(typeof TestGroups._root, "undefined");
+});
+
+test("TestGroups.isTestFile(TestFile)", 1, function() {
+	var item = new TestFile("name", "file");
+	var result = TestGroups.isTestFile(item);
+	equal(result, true);
+});
+
+test("TestGroups.isTestFile(undefined)", 1, function() {
+	var item = undefined;
+	var result = TestGroups.isTestFile(item);
+	equal(result, false);
+});
+
+test("TestGroups.isTestFile(null)", 1, function() {
+	var item = null;
+	var result = TestGroups.isTestFile(item);
+	equal(result, false);
+});
+
+test("TestGroups.isTestFile(\"string\")", 1, function() {
+	var item = "string";
+	var result = TestGroups.isTestFile(item);
+	equal(result, false);
+});
+
+test("TestGroups.isTestFile({})", 1, function() {
+	var item = {};
+	var result = TestGroups.isTestFile(item);
+	equal(result, false);
+});
+
+test("TestGroups.isTestGroup(TestGroup)", 1, function() {
+	var item = new TestGroup("name", []);
+	var result = TestGroups.isTestGroup(item);
+	equal(result, true);
+});
+
+test("TestGroups.isTestGroup(undefined)", 1, function() {
+	var item = undefined;
+	var result = TestGroups.isTestGroup(item);
+	equal(result, false);
+});
+
+test("TestGroups.isTestGroup(null)", 1, function() {
+	var item = null;
+	var result = TestGroups.isTestGroup(item);
+	equal(result, false);
+});
+
+test("TestGroups.isTestGroup(\"string\")", 1, function() {
+	var item = "string";
+	var result = TestGroups.isTestGroup(item);
+	equal(result, false);
+});
+
+test("TestGroups.isTestGroup({})", 1, function() {
+	var item = {};
+	var result = TestGroups.isTestGroup(item);
+	equal(result, false);
+});
+
+test("TestGroups.outline()", 2, function() {
+	var baseUrl = "base-url";
+	var outline = "outline";
+	
+	TestGroups._root = {
+		outline : function(bUrl) {
+			equal(bUrl, baseUrl);
+			return outline;
+		},
+	};
+	
+	var result = TestGroups.outline(baseUrl);
+	equal(result, outline);
+});
+
+
+module("TestGroups._loadAndRunTestByUrlArg", {
+	setup : function() {
+		this.recorded_extractGroupFilterArg = TestGroups._extractGroupFilterArg;
+	},
+	teardown : function() {
+		TestGroups._extractGroupFilterArg = this.recorded_extractGroupFilterArg;
+	},
+	makeGroupFixture : function () {
+		var fixture = {};
+		fixture.testFile0 = new TestFile("name0", "file0");
+		fixture.testFile1 = new TestFile("name1", "file1");
+		fixture.testFile2 = { name: "name2", file: "file2" };
+		fixture.subGroup = new TestGroup("sub-group", [
+			fixture.testFile1,
+		]);
+		fixture.rootGroup = new TestGroup("group", [
+			fixture.testFile0,
+			fixture.subGroup,
+			fixture.testFile2,
+		]);
+		
+		for(var name in fixture) {
+			var item = fixture[name];
+			item.loadAndRun = function() {
+				ok(false, "loadAndRun() should not be called on " + this.name);
+			};
+		}
+		
+		return fixture;
+	},
+});
+
+test("TestGroups._loadAndRunTestByUrlArg(): URL arg is root group", 2, function() {
+	var fixture = this.makeGroupFixture();
+	
+	TestGroups._extractGroupFilterArg = function() {
+		ok(true);
+		return fixture.rootGroup.name;
+	};
+	fixture.rootGroup.loadAndRun = function() {
+		ok(true);
+	};
+	
+	TestGroups._root = fixture.rootGroup;
+	
+	TestGroups._loadAndRunTestByUrlArg();
+});
+
+test("TestGroups._loadAndRunTestByUrlArg(): URL arg is sub-group", 2, function() {
+	var fixture = this.makeGroupFixture();
+	
+	TestGroups._extractGroupFilterArg = function() {
+		ok(true);
+		return fixture.subGroup.name;
+	};
+	fixture.subGroup.loadAndRun = function() {
+		ok(true);
+	};
+	
+	TestGroups._root = fixture.rootGroup;
+	
+	TestGroups._loadAndRunTestByUrlArg();
+});
+
+test("TestGroups._loadAndRunTestByUrlArg(): URL arg is test", 2, function() {
+	var fixture = this.makeGroupFixture();
+	
+	TestGroups._extractGroupFilterArg = function() {
+		ok(true);
+		return fixture.testFile1.name;
+	};
+	fixture.testFile1.loadAndRun = function() {
+		ok(true);
+	};
+	
+	TestGroups._root = fixture.rootGroup;
+	
+	TestGroups._loadAndRunTestByUrlArg();
+});
+
+test("TestGroups._loadAndRunTestByUrlArg(): URL arg is unknown test", 1, function() {
+	var fixture = this.makeGroupFixture();
+	
+	TestGroups._extractGroupFilterArg = function() {
+		ok(true);
+		return "unknown";
+	};
+	
+	TestGroups._root = fixture.rootGroup;
+	
+	TestGroups._loadAndRunTestByUrlArg();
+});
+
+test("TestGroups._loadAndRunTestByUrlArg(): no URL arg", 2, function() {
+	var fixture = this.makeGroupFixture();
+	
+	TestGroups._extractGroupFilterArg = function() {
+		ok(true);
+		return undefined;
+	};
+	fixture.rootGroup.loadAndRun = function() {
+		ok(true);
+	};
+	
+	TestGroups._root = fixture.rootGroup;
+	
+	TestGroups._loadAndRunTestByUrlArg();
+});
+
+
 module("TestFile");
 
 test("TestFile()", 2, function() {
@@ -132,9 +343,9 @@ test("TestGroup()", 11, function() {
 	equal(testGroup.name, name);
 	equal(testGroup.items.length, items.length);
 	
-	ok(TestGroup.isTestFile(testGroup.items[0]));
-	ok(TestGroup.isTestGroup(testGroup.items[1]));
-	ok(TestGroup.isTestFile(testGroup.items[2]));
+	ok(TestGroups.isTestFile(testGroup.items[0]));
+	ok(TestGroups.isTestGroup(testGroup.items[1]));
+	ok(TestGroups.isTestFile(testGroup.items[2]));
 	
 	equal(testGroup.items[0].name, items[0].name);
 	equal(testGroup.items[1].name, items[1].name);
@@ -162,71 +373,7 @@ test("TestGroup(): invalid items type", 1, function() {
 	};
 	throws(func, TypeError);
 });
-
-test("TestGroup.isTestFile(TestFile)", 1, function() {
-	var item = new TestFile("name", "file");
-	var result = TestGroup.isTestFile(item);
-	equal(result, true);
-});
-
-test("TestGroup.isTestFile(undefined)", 1, function() {
-	var item = undefined;
-	var result = TestGroup.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroup.isTestFile(null)", 1, function() {
-	var item = null;
-	var result = TestGroup.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroup.isTestFile(\"string\")", 1, function() {
-	var item = "string";
-	var result = TestGroup.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroup.isTestFile({})", 1, function() {
-	var item = {};
-	var result = TestGroup.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroup.isTestGroup(TestGroup)", 1, function() {
-	var item = new TestGroup("name", []);
-	var result = TestGroup.isTestGroup(item);
-	equal(result, true);
-});
-
-test("TestGroup.isTestGroup(undefined)", 1, function() {
-	var item = undefined;
-	var result = TestGroup.isTestGroup(item);
-	equal(result, false);
-});
-
-test("TestGroup.isTestGroup(null)", 1, function() {
-	var item = null;
-	var result = TestGroup.isTestGroup(item);
-	equal(result, false);
-});
-
-test("TestGroup.isTestGroup(\"string\")", 1, function() {
-	var item = "string";
-	var result = TestGroup.isTestGroup(item);
-	equal(result, false);
-});
-
-test("TestGroup.isTestGroup({})", 1, function() {
-	var item = {};
-	var result = TestGroup.isTestGroup(item);
-	equal(result, false);
-});
 	
-test("TestGroup.rootTestGroup()", 1, function() {
-	deepEqual(TestGroup.rootTestGroup, TestGroup._loadAndRunTestByUrlArg);
-});
-
 test("TestGroup.getAllTestFiles()", 10, function() {
 	var testFile0 = new TestFile("file0", "file0");
 	var testFile1 = new TestFile("file1", "file1");
@@ -243,9 +390,9 @@ test("TestGroup.getAllTestFiles()", 10, function() {
 	var testFiles = testGroup.getAllTestFiles();
 	equal(testFiles.length, 3);
 	
-	ok(TestGroup.isTestFile(testFiles[0]));
-	ok(TestGroup.isTestFile(testFiles[1]));
-	ok(TestGroup.isTestFile(testFiles[2]));
+	ok(TestGroups.isTestFile(testFiles[0]));
+	ok(TestGroups.isTestFile(testFiles[1]));
+	ok(TestGroups.isTestFile(testFiles[2]));
 	
 	equal(testFiles[0].name, testFile0.name);
 	equal(testFiles[1].name, testFile1.name);
@@ -360,106 +507,6 @@ test("TestGroup.searchByName(): not found (same root)", 1, function() {
 	
 	var test = testGroup.searchByName("group");
 	deepEqual(test, undefined);
-});
-
-
-module("TestGroup._loadAndRunTestByUrlArg", {
-	setup : function() {
-		this.recorded_extractGroupFilterArg = TestGroup._extractGroupFilterArg;
-	},
-	teardown : function() {
-		TestGroup._extractGroupFilterArg = this.recorded_extractGroupFilterArg;
-	},
-	makeGroupFixture : function () {
-		var fixture = {};
-		fixture.testFile0 = new TestFile("name0", "file0");
-		fixture.testFile1 = new TestFile("name1", "file1");
-		fixture.testFile2 = { name: "name2", file: "file2" };
-		fixture.subGroup = new TestGroup("sub-group", [
-			fixture.testFile1,
-		]);
-		fixture.rootGroup = new TestGroup("group", [
-			fixture.testFile0,
-			fixture.subGroup,
-			fixture.testFile2,
-		]);
-		
-		for(var name in fixture) {
-			var item = fixture[name];
-			item.loadAndRun = function() {
-				ok(false, "loadAndRun() should not be called on " + this.name);
-			};
-		}
-		
-		return fixture;
-	},
-});
-
-test("TestGroup._loadAndRunTestByUrlArg(): URL arg is root group", 2, function() {
-	var fixture = this.makeGroupFixture();
-	
-	TestGroup._extractGroupFilterArg = function() {
-		ok(true);
-		return fixture.rootGroup.name;
-	};
-	fixture.rootGroup.loadAndRun = function() {
-		ok(true);
-	};
-	
-	TestGroup._loadAndRunTestByUrlArg(fixture.rootGroup);
-});
-
-test("TestGroup._loadAndRunTestByUrlArg(): URL arg is sub-group", 2, function() {
-	var fixture = this.makeGroupFixture();
-	
-	TestGroup._extractGroupFilterArg = function() {
-		ok(true);
-		return fixture.subGroup.name;
-	};
-	fixture.subGroup.loadAndRun = function() {
-		ok(true);
-	};
-	
-	TestGroup._loadAndRunTestByUrlArg(fixture.rootGroup);
-});
-
-test("TestGroup._loadAndRunTestByUrlArg(): URL arg is test", 2, function() {
-	var fixture = this.makeGroupFixture();
-	
-	TestGroup._extractGroupFilterArg = function() {
-		ok(true);
-		return fixture.testFile1.name;
-	};
-	fixture.testFile1.loadAndRun = function() {
-		ok(true);
-	};
-	
-	TestGroup._loadAndRunTestByUrlArg(fixture.rootGroup);
-});
-
-test("TestGroup._loadAndRunTestByUrlArg(): URL arg is unknown test", 1, function() {
-	var fixture = this.makeGroupFixture();
-	
-	TestGroup._extractGroupFilterArg = function() {
-		ok(true);
-		return "unknown";
-	};
-	
-	TestGroup._loadAndRunTestByUrlArg(fixture.rootGroup);
-});
-
-test("TestGroup._loadAndRunTestByUrlArg(): no URL arg", 2, function() {
-	var fixture = this.makeGroupFixture();
-	
-	TestGroup._extractGroupFilterArg = function() {
-		ok(true);
-		return undefined;
-	};
-	fixture.rootGroup.loadAndRun = function() {
-		ok(true);
-	};
-	
-	TestGroup._loadAndRunTestByUrlArg(fixture.rootGroup);
 });
 
 

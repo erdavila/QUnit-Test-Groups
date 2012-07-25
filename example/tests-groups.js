@@ -44,3 +44,6 @@ var allTests = new TestGroup("All Tests", [
 	testsIntegration,
 	testsUtils,
 ]);
+
+
+TestGroups.root(allTests);
