@@ -6,24 +6,24 @@
 - Review structure of source code.
 
 - Support for simpler objects:
-	{"name":name, "url": url}  is the same as  new TestFile(name, url)
+	{"name":name, "file": file}  is the same as  new TestFile(name, file)
 	{"name":name, "items": items}  is the same as  new TestGroup(name, items)
 	
 	var rootTestGroup = {
 		name : "All Tests",
 		items : [
-			{name : "Test 1", url : "file1.js"},
-			{name : "Test 2", url : "file2.js"},
+			{name : "Test 1", file : "file1.js"},
+			{name : "Test 2", file : "file2.js"},
 			{name : "Group A", items : [
-				{name : "Test A1", url : "test-a1.js"},
-				{name : "Test A2", url : "test-a2.js"},
+				{name : "Test A1", file : "test-a1.js"},
+				{name : "Test A2", file : "test-a2.js"},
 				new TestGroup("Group AX", itemsAX),
 			],},
-			{name : "Test 3", url : "file3.js"},
+			{name : "Test 3", file : "file3.js"},
 			{name : "Group B", items : [
-				{name : "Test B1", url : "test-b1.js"},
+				{name : "Test B1", file : "test-b1.js"},
 				new TestFile("Test B2", "test-b2.js"),
-				{name : "Test B3", url : "test-b3.js"},
+				{name : "Test B3", file : "test-b3.js"},
 			],},
 		],
 	};
@@ -40,6 +40,10 @@
 	- to document.body
 	- or to an element specified in an argument.
 
+- Refactor tests:
+	- Separate in *.js files.
+	- Reuse same fixtures in modules TestGroup.searchByName and TestGroup._loadAndRunTestByUrlArg.
+	- Use QUnit Test Groups to test QUnit Test Groups!
 
 - Think about:
 	* root group should be defined together with all groups (in tests-groups.js).

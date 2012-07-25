@@ -37,26 +37,26 @@
 		
 		test("TestFile()", 2, function() {
 			var name = "name";
-			var url = "url";
-			var testFile = new TestFile(name, url);
+			var file = "file";
+			var testFile = new TestFile(name, file);
 			equal(testFile.name, name);
-			equal(testFile.url, url);
+			equal(testFile.file, file);
 		});
 		
 		test("TestFile(): invalid name type", 1, function() {
 			var name = 7;
-			var url = "url";
+			var file = "file";
 			var func = function() {
-				new TestFile(name, url);
+				new TestFile(name, file);
 			};
 			throws(func, TypeError);
 		});
 		
-		test("TestFile(): invalid url type", 1, function() {
+		test("TestFile(): invalid file type", 1, function() {
 			var name = "name";
-			var url = 7;
+			var file = 7;
 			var func = function() {
-				new TestFile(name, url);
+				new TestFile(name, file);
 			};
 			throws(func, TypeError);
 		});
@@ -83,30 +83,30 @@
 		test("TestFilesList.push(): new", 6, function() {
 			var testFilesList = new TestFilesList();
 			
-			var testFile0 = new TestFile("name0", "url0");
+			var testFile0 = new TestFile("name0", "file0");
 			var result = testFilesList.push(testFile0);
 			equal(result, true);
 			equal(testFilesList.length, 1);
 			deepEqual(testFilesList.get(0), testFile0);
 			
-			var testFile1 = new TestFile("name1", "url1");
+			var testFile1 = new TestFile("name1", "file1");
 			result = testFilesList.push(testFile1);
 			equal(result, true);
 			equal(testFilesList.length, 2);
 			deepEqual(testFilesList.get(1), testFile1);
 		});
 		
-		test("TestFilesList.push(): repeated URL", 6, function() {
+		test("TestFilesList.push(): repeated file", 6, function() {
 			var testFilesList = new TestFilesList();
-			var sameUrl = "same-url";
+			var sameFile = "same-file";
 			
-			var testFile0 = new TestFile("name0", sameUrl);
+			var testFile0 = new TestFile("name0", sameFile);
 			var result = testFilesList.push(testFile0);
 			equal(result, true);
 			equal(testFilesList.length, 1);
 			deepEqual(testFilesList.get(0), testFile0);
 			
-			var testFile1 = new TestFile("name1", sameUrl);
+			var testFile1 = new TestFile("name1", sameFile);
 			result = testFilesList.push(testFile1);
 			equal(result, false);
 			equal(testFilesList.length, 1);
@@ -116,8 +116,8 @@
 		test("TestFilesList.asArray()", 4, function() {
 			var testFilesList = new TestFilesList();
 			
-			var testFile0 = new TestFile("name0", "url0");
-			var testFile1 = new TestFile("name1", "url1");
+			var testFile0 = new TestFile("name0", "file0");
+			var testFile1 = new TestFile("name1", "file1");
 			
 			testFilesList.push(testFile0);
 			testFilesList.push(testFile1);
@@ -135,9 +135,9 @@
 		test("TestGroup()", 11, function() {
 			var name = "name";
 			var items = [
-				new TestFile("name1", "url1"),
+				new TestFile("name1", "file1"),
 				new TestGroup("other", []),
-				{ name: "name2", url: "url2" },
+				{ name: "name2", file: "file2" },
 			];
 			
 			var testGroup = new TestGroup(name, items);
@@ -153,9 +153,9 @@
 			equal(testGroup.items[1].name, items[1].name);
 			equal(testGroup.items[2].name, items[2].name);
 			
-			equal(testGroup.items[0].url, items[0].url);
+			equal(testGroup.items[0].file, items[0].file);
 			equal(testGroup.items[1].items.length, items[1].items.length);
-			equal(testGroup.items[2].url, items[2].url);
+			equal(testGroup.items[2].file, items[2].file);
 		});
 		
 		test("TestGroup(): invalid name type", 1, function() {
@@ -177,7 +177,7 @@
 		});
 		
 		test("TestGroup.isTestFile(TestFile)", 1, function() {
-			var item = new TestFile("name", "url");
+			var item = new TestFile("name", "file");
 			var result = TestGroup.isTestFile(item);
 			equal(result, true);
 		});
@@ -241,9 +241,9 @@
 		});
 		
 		test("TestGroup.getAllTestFiles()", 10, function() {
-			var testFile0 = new TestFile("file0", "url0");
-			var testFile1 = new TestFile("file1", "url1");
-			var testFile2 = { name: "file2", url: "url2" };
+			var testFile0 = new TestFile("file0", "file0");
+			var testFile1 = new TestFile("file1", "file1");
+			var testFile2 = { name: "file2", file: "file2" };
 			
 			var testGroup = new TestGroup("group", [
 				testFile0,
@@ -264,9 +264,9 @@
 			equal(testFiles[1].name, testFile1.name);
 			equal(testFiles[2].name, testFile2.name);
 			
-			equal(testFiles[0].url, testFile0.url);
-			equal(testFiles[1].url, testFile1.url);
-			equal(testFiles[2].url, testFile2.url);
+			equal(testFiles[0].file, testFile0.file);
+			equal(testFiles[1].file, testFile1.file);
+			equal(testFiles[2].file, testFile2.file);
 		});
 		
 		asyncTest("TestGroup.loadAndRun()", 2, function() {
@@ -285,9 +285,9 @@
 		});
 		
 		test("TestGroup.searchByName(): file near", 1, function() {
-			var testFile0 = new TestFile("file0", "url0");
-			var testFile1 = new TestFile("file1", "url1");
-			var testFile2 = { name: "file2", url: "url2" };
+			var testFile0 = new TestFile("name0", "file0");
+			var testFile1 = new TestFile("name1", "file1");
+			var testFile2 = { name: "name2", file: "file2" };
 			
 			var testGroup = new TestGroup("group", [
 				testFile0,
@@ -297,14 +297,14 @@
 				testFile2,
 			]);
 			
-			var test = testGroup.searchByName("file0");
+			var test = testGroup.searchByName("name0");
 			deepEqual(test, testFile0);
 		});
 		
 		test("TestGroup.searchByName(): file farther", 1, function() {
-			var testFile0 = new TestFile("file0", "url0");
-			var testFile1 = new TestFile("file1", "url1");
-			var testFile2 = { name: "file2", url: "url2" };
+			var testFile0 = new TestFile("name0", "file0");
+			var testFile1 = new TestFile("name1", "file1");
+			var testFile2 = { name: "name2", file: "file2" };
 			
 			var testGroup = new TestGroup("group", [
 				testFile0,
@@ -314,14 +314,14 @@
 				testFile2,
 			]);
 			
-			var test = testGroup.searchByName("file1");
+			var test = testGroup.searchByName(testFile1.name);
 			deepEqual(test, testFile1);
 		});
 		
 		test("TestGroup.searchByName(): group", 1, function() {
-			var testFile0 = new TestFile("file0", "url0");
-			var testFile1 = new TestFile("file1", "url1");
-			var testFile2 = { name: "file2", url: "url2" };
+			var testFile0 = new TestFile("name0", "file0");
+			var testFile1 = new TestFile("name1", "file1");
+			var testFile2 = { name: "name2", file: "file2" };
 			
 			var subGroup = new TestGroup("sub-group", [
 				testFile1,
@@ -338,9 +338,9 @@
 		});
 		
 		test("TestGroup.searchByName(): not found", 1, function() {
-			var testFile0 = new TestFile("file0", "url0");
-			var testFile1 = new TestFile("file1", "url1");
-			var testFile2 = { name: "file2", url: "url2" };
+			var testFile0 = new TestFile("name0", "file0");
+			var testFile1 = new TestFile("name1", "file1");
+			var testFile2 = { name: "name2", file: "file2" };
 			
 			var subGroup = new TestGroup("sub-group", [
 				testFile1,
@@ -357,9 +357,9 @@
 		});
 		
 		test("TestGroup.searchByName(): not found (same root)", 1, function() {
-			var testFile0 = new TestFile("file0", "url0");
-			var testFile1 = new TestFile("file1", "url1");
-			var testFile2 = { name: "file2", url: "url2" };
+			var testFile0 = new TestFile("name0", "file0");
+			var testFile1 = new TestFile("name1", "file1");
+			var testFile2 = { name: "name2", file: "file2" };
 			
 			var subGroup = new TestGroup("sub-group", [
 				testFile1,
@@ -385,9 +385,9 @@
 			},
 			makeGroupFixture : function () {
 				var fixture = {};
-				fixture.testFile0 = new TestFile("file0", "url0");
-				fixture.testFile1 = new TestFile("file1", "url1");
-				fixture.testFile2 = { name: "file2", url: "url2" };
+				fixture.testFile0 = new TestFile("name0", "file0");
+				fixture.testFile1 = new TestFile("name1", "file1");
+				fixture.testFile2 = { name: "name2", file: "file2" };
 				fixture.subGroup = new TestGroup("sub-group", [
 					fixture.testFile1,
 				]);
@@ -546,7 +546,7 @@
 				equal(bUrl, baseUrl);
 				return linkElement;
 			};
-			var testFile = new TestFile(name, "url");
+			var testFile = new TestFile(name, "file");
 			
 			try {
 				var outlineItem = testFile._outlineItem(baseUrl);

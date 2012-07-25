@@ -10,7 +10,7 @@ function TestGroup(name, items) {
 	for(var i = 0; i < items.length; i++) {
 		var item = items[i];
 		if(!TestGroup.isTestGroup(item)  &&  !TestGroup.isTestFile(item)) {
-			item = new TestFile(item.name, item.url);
+			item = new TestFile(item.name, item.file);
 		}
 		this.items.push(item);
 	}
@@ -133,19 +133,19 @@ TestGroup.prototype._outlineItemsList = function(baseUrl) {
 };
 
 
-function TestFile(name, url) {
+function TestFile(name, file) {
 	if(typeof name != "string") {
-		throw new TypeError("Name should be string");
+		throw new TypeError("Name argument should be string");
 	}
-	if(typeof url != "string") {
-		throw new TypeError("URL should be string");
+	if(typeof file != "string") {
+		throw new TypeError("File argument should be string");
 	}
 	this.name = name;
-	this.url = url;
+	this.file = file;
 }
 
 TestFile.prototype.loadAndRun = function() {
-	ScriptLoader.load(this.url);
+	ScriptLoader.load(this.file);
 };
 
 TestFile.prototype._outlineItem = function(baseUrl) {
@@ -161,18 +161,18 @@ TestFile.prototype._outlineItem = function(baseUrl) {
 function TestFilesList() {
 	this.testFiles = [];
 	this.length = this.testFiles.length;
-	this.urls = {};
+	this.files = {};
 }
 
 TestFilesList.prototype.push = function(testFile) {
-	var url = testFile.url;
-	if(url in this.urls) {
-		console.log("Already added to TestFilesList:", url);
+	var file = testFile.file;
+	if(file in this.files) {
+		console.log("Already added to TestFilesList:", file);
 		return false;
 	} else {
 		this.testFiles.push(testFile);
 		this.length = this.testFiles.length;
-		this.urls[url] = testFile;
+		this.files[file] = testFile;
 		return true;
 	}
 };
