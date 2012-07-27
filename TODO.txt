@@ -1,12 +1,11 @@
 - Make tests pass in Chrome/Firefox/IE/Opera/Safari.
 
-- Documentation (in wiki)
-	- How to use.
-	- Known issue: error on dynamic loading breaks on Firefox if running under file://
+- Reference jQuery as "jQuery" instead of "$".
 
 - Ensure order of dynamically loaded scripts.
 
 - Review structure of source code.
+	- Try to turn it into a QUnit add-on (less globals!)
 
 - Support for simpler objects:
 	{"name":name, "file": file}  is the same as  new TestFile(name, file)

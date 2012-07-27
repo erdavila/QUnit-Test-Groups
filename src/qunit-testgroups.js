@@ -172,10 +172,10 @@ TestGroup.prototype._outlineItemsList = function(baseUrl) {
 
 function TestFile(name, file) {
 	if(typeof name != "string") {
-		throw new TypeError("Name argument should be string");
+		throw new TypeError("name argument should be string");
 	}
 	if(typeof file != "string") {
-		throw new TypeError("File argument should be string");
+		throw new TypeError("file argument should be string");
 	}
 	this.name = name;
 	this.file = file;
@@ -226,6 +226,11 @@ TestFilesList.prototype.get = function(index) {
 
 
 ScriptLoader = {
+	/* Note: Not using jQuery to create the SCRIPT element and to add it to HEAD
+	 * because jQuery cheats. It uses XmlHttpRequest to load the content of the
+	 * script and then inserts it in the head (without the src attribute). This
+	 * won't work on local files (file:// URL), so we do it in the old way.
+	 */
 	load : function(url) {
 		var scriptElement = this.createScriptElement(url);
 		document.head.appendChild(scriptElement);
