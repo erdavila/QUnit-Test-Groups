@@ -2,8 +2,6 @@
 
 - Reference jQuery as "jQuery" instead of "$".
 
-- Ensure order of dynamically loaded scripts.
-
 - Review structure of source code.
 	- Try to turn it into a QUnit add-on (less globals!)
 

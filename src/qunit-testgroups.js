@@ -231,14 +231,43 @@ ScriptLoader = {
 	 * script and then inserts it in the head (without the src attribute). This
 	 * won't work on local files (file:// URL), so we do it in the old way.
 	 */
+	currentScript : null,
+	queue : [],
 	load : function(url) {
+		console.log("Loading", url);
 		var scriptElement = this.createScriptElement(url);
-		document.head.appendChild(scriptElement);
+		this.queue.push(scriptElement);
+		this.loadNextScript();
 	},
 	createScriptElement : function(url) {
-		var scriptElement = document.createElement('script');
+		var scriptElement = document.createElement("script");
+		var handler = function(){
+			ScriptLoader.scriptLoadedHandler(url);
+		};
+		
+		scriptElement.addEventListener("load", handler, false);
+		scriptElement.addEventListener("error", handler, false);
 		scriptElement.src = url;
+		
 		return scriptElement;
+	},
+	scriptLoadedHandler : function(url) {
+		console.log("Finished loading", url);
+		this.forceLoadingNextScript();
+	},
+	loadNextScript : function() {
+		if(this.currentScript == null  &&  this.queue.length > 0) {
+			this.currentScript = this.queue.shift();
+			document.head.appendChild(this.currentScript);
+		}
+	},
+	forceLoadingNextScript : function() {
+		this.currentScript = null;
+		this.loadNextScript();
+	},
+	reset : function() {
+		this.currentScript = null;
+		this.queue = [];
 	},
 };
 

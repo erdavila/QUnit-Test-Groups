@@ -2,24 +2,57 @@ var LOAD_WAIT_TIMEOUT = 100;
 
 module("ScriptLoader");
 
-test("ScriptLoader.createScriptElement()", 2, function() {
-	var url = "file:///url";
-	var result = ScriptLoader.createScriptElement(url);
-	
-	equal(result.constructor, HTMLScriptElement);
-	equal(result.src, url);
-});
-
 asyncTest("ScriptLoader.load()", 1, function() {
 	var check = function() {
 		strictEqual(window.ScriptLoader_load_test_LOADED, true);
 		start();
 		delete window.ScriptLoader_load_test_LOADED;
+		ScriptLoader.reset();
 	};
 	setTimeout(check, LOAD_WAIT_TIMEOUT);
 	
 	var url = "ScriptLoader_load-test.js";
 	ScriptLoader.load(url);
+});
+
+asyncTest("ScriptLoader.load(): order", 5, function() {
+	var check = function() {
+		equal(window.ScriptLoader_load_order_test, 4);
+		start();
+		delete window.ScriptLoader_load_order_test;
+		ScriptLoader.reset();
+	};
+	setTimeout(check, 100);
+	window.ScriptLoader_load_order_test = 0;
+	
+	ScriptLoader.load("ScriptLoader_load-order-0-test.js");
+	ScriptLoader.load("ScriptLoader_load-order-1-test.js");
+	ScriptLoader.load("ScriptLoader_load-order-2-test.js");
+	ScriptLoader.load("ScriptLoader_load-order-3-test.js");
+});
+
+asyncTest("ScriptLoader.load(): missing file", 1, function() {
+	var check = function() {
+		var msg = "this is known to fail in Firefox with file:// URLs :-(";
+		equal(window.ScriptLoader_load_missing_test, 2, msg);
+		start();
+		delete window.ScriptLoader_load_missing_test;
+		ScriptLoader.reset();
+	};
+	setTimeout(check, 100);
+	window.ScriptLoader_load_missing_test = 0;
+	
+	ScriptLoader.load("ScriptLoader_load-missing-first-test.js");
+	ScriptLoader.load("MISSING.js");
+	ScriptLoader.load("ScriptLoader_load-missing-last-test.js");
+});
+
+test("ScriptLoader.createScriptElement()", 2, function() {
+	var url = "file:///url";
+	var result = ScriptLoader.createScriptElement(url);
+	
+	equal(result instanceof HTMLScriptElement, true);
+	equal(result.src, url);
 });
 
 
@@ -379,9 +412,9 @@ test("TestGroup(): invalid items type", 1, function() {
 });
 	
 test("TestGroup.getAllTestFiles()", 10, function() {
-	var testFile0 = new TestFile("file0", "file0");
-	var testFile1 = new TestFile("file1", "file1");
-	var testFile2 = { name: "file2", file: "file2" };
+	var testFile0 = new TestFile("name0", "file0");
+	var testFile1 = new TestFile("name1", "file1");
+	var testFile2 = { name: "name2", file: "file2" };
 	
 	var testGroup = new TestGroup("group", [
 		testFile0,
