@@ -1,5 +1,3 @@
-- Make tests pass in Chrome/Firefox/IE/Opera/Safari.
-
 - Reference jQuery as "jQuery" instead of "$".
 
 - Review structure of source code.
@@ -12,16 +10,16 @@
 	
 	var rootTestGroup = {
 		name : "All Tests",
-		items : [
+		tests : [
 			{name : "Test 1", file : "file1.js"},
 			{name : "Test 2", file : "file2.js"},
-			{name : "Group A", items : [
+			{name : "Group A", tests : [
 				{name : "Test A1", file : "test-a1.js"},
 				{name : "Test A2", file : "test-a2.js"},
 				new TestGroup("Group AX", itemsAX),
 			],},
 			{name : "Test 3", file : "file3.js"},
-			{name : "Group B", items : [
+			{name : "Group B", tests : [
 				{name : "Test B1", file : "test-b1.js"},
 				new TestFile("Test B2", "test-b2.js"),
 				{name : "Test B3", file : "test-b3.js"},

@@ -72,6 +72,7 @@ var TestGroups = {
 		var outline = this._root.outline(baseUrl);
 		return outline;
 	},
+	log : (window.console ? function() { return console.log.apply(console, arguments); } : function(){}),
 };
 
 
@@ -204,7 +205,7 @@ function TestFilesList() {
 TestFilesList.prototype.push = function(testFile) {
 	var file = testFile.file;
 	if(file in this.files) {
-		console.log("Already added to TestFilesList:", file);
+		TestGroups.log("Already added to TestFilesList:", file);
 		return false;
 	} else {
 		this.testFiles.push(testFile);
@@ -234,7 +235,7 @@ ScriptLoader = {
 	currentScript : null,
 	queue : [],
 	load : function(url) {
-		console.log("Loading", url);
+		TestGroups.log("Loading", url);
 		var scriptElement = this.createScriptElement(url);
 		this.queue.push(scriptElement);
 		this.loadNextScript();
@@ -252,7 +253,7 @@ ScriptLoader = {
 		return scriptElement;
 	},
 	scriptLoadedHandler : function(url) {
-		console.log("Finished loading", url);
+		TestGroups.log("Finished loading", url);
 		this.forceLoadingNextScript();
 	},
 	loadNextScript : function() {

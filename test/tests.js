@@ -31,9 +31,11 @@ asyncTest("ScriptLoader.load(): order", 5, function() {
 	ScriptLoader.load("ScriptLoader_load-order-3-test.js");
 });
 
-asyncTest("ScriptLoader.load(): missing file", 1, function() {
+asyncTest("ScriptLoader.load(): missing file", 2, function() {
+	var msg = "this test is known to fail in Firefox and IE with file:// URLs :-(";
+	ok(true, msg);
+	
 	var check = function() {
-		var msg = "this is known to fail in Firefox with file:// URLs :-(";
 		equal(window.ScriptLoader_load_missing_test, 2, msg);
 		start();
 		delete window.ScriptLoader_load_missing_test;
@@ -48,11 +50,11 @@ asyncTest("ScriptLoader.load(): missing file", 1, function() {
 });
 
 test("ScriptLoader.createScriptElement()", 2, function() {
-	var url = "file:///url";
+	var url = "url";
 	var result = ScriptLoader.createScriptElement(url);
 	
 	equal(result instanceof HTMLScriptElement, true);
-	equal(result.src, url);
+	equal(result.getAttribute("src"), url);
 });
 
 
