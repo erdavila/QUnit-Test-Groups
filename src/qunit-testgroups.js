@@ -72,6 +72,7 @@ var TestGroups = {
 		var outline = this._root.outline(baseUrl);
 		return outline;
 	},
+	log : (window.console ? function() { return console.log.apply(console, arguments); } : function(){}),
 };
 
 
@@ -172,10 +173,10 @@ TestGroup.prototype._outlineItemsList = function(baseUrl) {
 
 function TestFile(name, file) {
 	if(typeof name != "string") {
-		throw new TypeError("Name argument should be string");
+		throw new TypeError("name argument should be string");
 	}
 	if(typeof file != "string") {
-		throw new TypeError("File argument should be string");
+		throw new TypeError("file argument should be string");
 	}
 	this.name = name;
 	this.file = file;
@@ -204,7 +205,7 @@ function TestFilesList() {
 TestFilesList.prototype.push = function(testFile) {
 	var file = testFile.file;
 	if(file in this.files) {
-		console.log("Already added to TestFilesList:", file);
+		TestGroups.log("Already added to TestFilesList:", file);
 		return false;
 	} else {
 		this.testFiles.push(testFile);
@@ -226,14 +227,48 @@ TestFilesList.prototype.get = function(index) {
 
 
 ScriptLoader = {
+	/* Note: Not using jQuery to create the SCRIPT element and to add it to HEAD
+	 * because jQuery cheats. It uses XmlHttpRequest to load the content of the
+	 * script and then inserts it in the head (without the src attribute). This
+	 * won't work on local files (file:// URL), so we do it in the old way.
+	 */
+	currentScript : null,
+	queue : [],
 	load : function(url) {
+		TestGroups.log("Loading", url);
 		var scriptElement = this.createScriptElement(url);
-		document.head.appendChild(scriptElement);
+		this.queue.push(scriptElement);
+		this.loadNextScript();
 	},
 	createScriptElement : function(url) {
-		var scriptElement = document.createElement('script');
+		var scriptElement = document.createElement("script");
+		var handler = function(){
+			ScriptLoader.scriptLoadedHandler(url);
+		};
+		
+		scriptElement.addEventListener("load", handler, false);
+		scriptElement.addEventListener("error", handler, false);
 		scriptElement.src = url;
+		
 		return scriptElement;
+	},
+	scriptLoadedHandler : function(url) {
+		TestGroups.log("Finished loading", url);
+		this.forceLoadingNextScript();
+	},
+	loadNextScript : function() {
+		if(this.currentScript == null  &&  this.queue.length > 0) {
+			this.currentScript = this.queue.shift();
+			document.head.appendChild(this.currentScript);
+		}
+	},
+	forceLoadingNextScript : function() {
+		this.currentScript = null;
+		this.loadNextScript();
+	},
+	reset : function() {
+		this.currentScript = null;
+		this.queue = [];
 	},
 };
 
