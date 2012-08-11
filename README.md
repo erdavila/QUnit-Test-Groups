@@ -51,22 +51,24 @@ Such a reference can be stored in a variable and reused in different groups (See
 #### Definitions of test groups 
 A test group is defined this way:
 ``` javascript
-var aTestGroup = new TestGroup("Component X", [
-    item0,
-    item1,
-    ...
-    itemN,
-]);
+var aTestGroup = {
+    name: "Component X", tests: [
+        item1,
+        item2,
+        ...
+        itemN,
+    ]
+);
 ```
 where each _itemX_ is either a test file reference or another test group.
-A group can also be referenced in multiple other groups (See `testsComponentX`
+A group can also be referenced in multiple other groups (See `testsComponentXIntegration`
 in the [example]
-(https://github.com/erdavila/QUnit-Test-Groups/blob/gh-pages/example/tests-groups.js#L17)).
+(https://github.com/erdavila/QUnit-Test-Groups/blob/gh-pages/example/tests-groups.js#L1)).
 
 #### Set the root test group
 Having defined all test groups, there must be a test group from which all test
 files and other groups can be reached. This is the root test group, and must be
-present to QUnit Test Groups this way:
+presented to QUnit Test Groups this way:
 ``` javascript
 TestGroups.root(rootTestGroup);
 ```

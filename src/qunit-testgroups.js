@@ -24,7 +24,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var TestGroups = {
 	root : function(testGroup) {
-		if(!TestGroups.isTestGroup(testGroup)) {
+		try {
+			testGroup = TestGroup.asInstance(testGroup);
+		} catch(e) {
 			throw new TypeError("Argument should be a test group");
 		}
 		TestGroups._root = testGroup;
@@ -87,12 +89,22 @@ function TestGroup(name, items) {
 	this.items = [];
 	for(var i = 0; i < items.length; i++) {
 		var item = items[i];
-		if(!TestGroups.isTestGroup(item)  &&  !TestGroups.isTestFile(item)) {
-			item = new TestFile(item.name, item.file);
+		if("file" in item) {
+			item = TestFile.asInstance(item);
+		} else {
+			item = TestGroup.asInstance(item);
 		}
 		this.items.push(item);
 	}
 }
+
+TestGroup.asInstance = function(object) {
+	if(object instanceof TestGroup) {
+		return object;
+	}
+	var testGroup = new TestGroup(object.name, object.tests);
+	return testGroup;
+};
 
 TestGroup._makeOutlineLink = function(name, baseUrl) {
 	var link = $("<a/>");
@@ -181,6 +193,14 @@ function TestFile(name, file) {
 	this.name = name;
 	this.file = file;
 }
+
+TestFile.asInstance = function(object) {
+	if(object instanceof TestFile) {
+		return object;
+	}
+	var testFile = new TestFile(object.name, object.file);
+	return testFile;
+};
 
 TestFile.prototype.loadAndRun = function() {
 	ScriptLoader.load(this.file);

@@ -83,6 +83,34 @@ test("TestGroups.root(not TestGroup)", 2, function() {
 	equal(typeof TestGroups._root, "undefined");
 });
 
+test("TestGroups.root({...})", 12, function() {
+	var testGroup = {
+		name : "Root Group",
+		tests : [
+			{ name : "Test name", file : "test-file.js" },
+			{ name : "Sub-group", tests : [
+				{ name : "Other Test name", file : "test-file-other.js" },
+			]},
+		],
+	};
+	delete TestGroups._root;
+	
+	TestGroups.root(testGroup);
+	
+	ok(TestGroups._root instanceof TestGroup);
+	equal(TestGroups._root.name, testGroup.name);
+	equal(TestGroups._root.items.length, testGroup.tests.length);
+	ok(TestGroups._root.items[0] instanceof TestFile);
+	equal(TestGroups._root.items[0].name, testGroup.tests[0].name);
+	equal(TestGroups._root.items[0].file, testGroup.tests[0].file);
+	ok(TestGroups._root.items[1] instanceof TestGroup);
+	equal(TestGroups._root.items[1].name, testGroup.tests[1].name);
+	equal(TestGroups._root.items[1].items.length, testGroup.tests[1].tests.length);
+	ok(TestGroups._root.items[1].items[0] instanceof TestFile);
+	equal(TestGroups._root.items[1].items[0].name, testGroup.tests[1].tests[0].name);
+	equal(TestGroups._root.items[1].items[0].file, testGroup.tests[1].tests[0].file);
+});
+
 test("TestGroups.isTestFile(TestFile)", 1, function() {
 	var item = new TestFile("name", "file");
 	var result = TestGroups.isTestFile(item);
@@ -297,6 +325,61 @@ test("TestFile(): invalid file type", 1, function() {
 	throws(func, TypeError);
 });
 
+test("TestFile.asInstance(TestFile)", 2, function() {
+	var testFile = new TestFile("name", "file");
+	
+	var result = TestFile.asInstance(testFile);
+	
+	ok(result instanceof TestFile);
+	equal(result, testFile);
+});
+
+test("TestFile.asInstance({...})", 3, function() {
+	var testFile = {
+		name: "name",
+		file: "file",
+	};
+	
+	var result = TestFile.asInstance(testFile);
+	
+	ok(result instanceof TestFile);
+	equal(result.name, testFile.name);
+	equal(result.file, testFile.file);
+});
+
+test("TestFile.asInstance({...}): invalid name attribute", 1, function() {
+	var testFile = {
+		name: null,
+		file: "file",
+	};
+	
+	var func = function() {
+		TestFile.asInstance(testFile);
+	};
+	throws(func, TypeError);
+});
+
+test("TestFile.asInstance({...}): invalid file attribute", 1, function() {
+	var testFile = {
+		name: "name",
+		file: null,
+	};
+	
+	var func = function() {
+		TestFile.asInstance(testFile);
+	};
+	throws(func, TypeError);
+});
+
+test("TestFile.asInstance(null)", 1, function() {
+	var testFile = null;
+	
+	var func = function() {
+		TestFile.asInstance(testFile);
+	};
+	throws(func, TypeError);
+});
+
 asyncTest("TestFile.loadAndRun()", 1, function() {
 	var check = function() {
 		strictEqual(window.TestFile_loadAndRun_test_LOADED, true);
@@ -369,10 +452,13 @@ test("TestFilesList.asArray()", 4, function() {
 
 module("TestGroup");
 
-test("TestGroup()", 11, function() {
+test("TestGroup()", 17, function() {
 	var name = "name";
 	var items = [
 		new TestFile("name1", "file1"),
+		{ name: "sub-group", tests: [
+			{ name: "name3", file: "file3" }
+		]},
 		new TestGroup("other", []),
 		{ name: "name2", file: "file2" },
 	];
@@ -382,17 +468,24 @@ test("TestGroup()", 11, function() {
 	equal(testGroup.name, name);
 	equal(testGroup.items.length, items.length);
 	
-	ok(TestGroups.isTestFile(testGroup.items[0]));
-	ok(TestGroups.isTestGroup(testGroup.items[1]));
-	ok(TestGroups.isTestFile(testGroup.items[2]));
-	
+	ok(testGroup.items[0] instanceof TestFile);
 	equal(testGroup.items[0].name, items[0].name);
-	equal(testGroup.items[1].name, items[1].name);
-	equal(testGroup.items[2].name, items[2].name);
-	
 	equal(testGroup.items[0].file, items[0].file);
-	equal(testGroup.items[1].items.length, items[1].items.length);
-	equal(testGroup.items[2].file, items[2].file);
+	
+	ok(testGroup.items[1] instanceof TestGroup);
+	equal(testGroup.items[1].name, items[1].name);
+	equal(testGroup.items[1].items.length, items[1].tests.length);
+	ok(testGroup.items[1].items[0] instanceof TestFile);
+	equal(testGroup.items[1].items[0].name, items[1].tests[0].name);
+	equal(testGroup.items[1].items[0].file, items[1].tests[0].file);
+	
+	ok(testGroup.items[2] instanceof TestGroup);
+	equal(testGroup.items[2].name, items[2].name);
+	equal(testGroup.items[2].items, items[2].items);
+	
+	ok(testGroup.items[3] instanceof TestFile);
+	equal(testGroup.items[3].name, items[3].name);
+	equal(testGroup.items[3].file, items[3].file);
 });
 
 test("TestGroup(): invalid name type", 1, function() {
@@ -413,6 +506,77 @@ test("TestGroup(): invalid items type", 1, function() {
 	throws(func, TypeError);
 });
 	
+test("TestGroup.asInstance(TestGroup)", 2, function() {
+	var testGroup = new TestGroup("group-name", [
+		{ name: "test-name", file: "test-file" },
+	]);
+	
+	var result = TestGroup.asInstance(testGroup);
+	
+	ok(result instanceof TestGroup);
+	equal(result, testGroup);
+});
+
+test("TestGroup.asInstance({...})", 12, function() {
+	var testGroup = {
+		name: "group-name",
+		tests: [
+			{ name: "test-name", file: "test-file" },
+			{ name: "sub-group", tests: [
+				{ name: "other-test-name", file: "other-test-file" },
+			]}
+		],
+	};
+	
+	var result = TestGroup.asInstance(testGroup);
+	
+	ok(result instanceof TestGroup);
+	equal(result.name, testGroup.name);
+	equal(result.items.length, testGroup.tests.length);
+	ok(result.items[0] instanceof TestFile);
+	equal(result.items[0].name, testGroup.tests[0].name);
+	equal(result.items[0].file, testGroup.tests[0].file);
+	ok(result.items[1] instanceof TestGroup);
+	equal(result.items[1].name, testGroup.tests[1].name);
+	equal(result.items[1].items.length, testGroup.tests[1].tests.length);
+	ok(result.items[1].items[0] instanceof TestFile);
+	equal(result.items[1].items[0].name, testGroup.tests[1].tests[0].name);
+	equal(result.items[1].items[0].file, testGroup.tests[1].tests[0].file);
+});
+
+test("TestGroup.asInstance({...}): invalid name attribute", 1, function() {
+	var testGroup = {
+		name: null,
+		tests: [],
+	};
+	
+	var func = function() {
+		TestGroup.asInstance(testGroup);
+	};
+	throws(func, TypeError);
+});
+
+test("TestGroup.asInstance({...}): invalid tests attribute", 1, function() {
+	var testGroup = {
+		name: "name",
+		tests: null,
+	};
+	
+	var func = function() {
+		TestGroup.asInstance(testGroup);
+	};
+	throws(func, TypeError);
+});
+
+test("TestGroup.asInstance(null)", 1, function() {
+	var testGroup = null;
+	
+	var func = function() {
+		TestGroup.asInstance(testGroup);
+	};
+	throws(func, TypeError);
+});
+
 test("TestGroup.getAllTestFiles()", 10, function() {
 	var testFile0 = new TestFile("name0", "file0");
 	var testFile1 = new TestFile("name1", "file1");
