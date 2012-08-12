@@ -111,66 +111,6 @@ test("TestGroups.root({...})", 12, function() {
 	equal(TestGroups._root.items[1].items[0].file, testGroup.tests[1].tests[0].file);
 });
 
-test("TestGroups.isTestFile(TestFile)", 1, function() {
-	var item = new TestFile("name", "file");
-	var result = TestGroups.isTestFile(item);
-	equal(result, true);
-});
-
-test("TestGroups.isTestFile(undefined)", 1, function() {
-	var item = undefined;
-	var result = TestGroups.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroups.isTestFile(null)", 1, function() {
-	var item = null;
-	var result = TestGroups.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroups.isTestFile(\"string\")", 1, function() {
-	var item = "string";
-	var result = TestGroups.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroups.isTestFile({})", 1, function() {
-	var item = {};
-	var result = TestGroups.isTestFile(item);
-	equal(result, false);
-});
-
-test("TestGroups.isTestGroup(TestGroup)", 1, function() {
-	var item = new TestGroup("name", []);
-	var result = TestGroups.isTestGroup(item);
-	equal(result, true);
-});
-
-test("TestGroups.isTestGroup(undefined)", 1, function() {
-	var item = undefined;
-	var result = TestGroups.isTestGroup(item);
-	equal(result, false);
-});
-
-test("TestGroups.isTestGroup(null)", 1, function() {
-	var item = null;
-	var result = TestGroups.isTestGroup(item);
-	equal(result, false);
-});
-
-test("TestGroups.isTestGroup(\"string\")", 1, function() {
-	var item = "string";
-	var result = TestGroups.isTestGroup(item);
-	equal(result, false);
-});
-
-test("TestGroups.isTestGroup({})", 1, function() {
-	var item = {};
-	var result = TestGroups.isTestGroup(item);
-	equal(result, false);
-});
-
 test("TestGroups.outline()", 2, function() {
 	var baseUrl = "base-url";
 	var outline = "outline";
@@ -593,9 +533,9 @@ test("TestGroup.getAllTestFiles()", 10, function() {
 	var testFiles = testGroup.getAllTestFiles();
 	equal(testFiles.length, 3);
 	
-	ok(TestGroups.isTestFile(testFiles[0]));
-	ok(TestGroups.isTestFile(testFiles[1]));
-	ok(TestGroups.isTestFile(testFiles[2]));
+	ok(testFiles[0] instanceof TestFile);
+	ok(testFiles[1] instanceof TestFile);
+	ok(testFiles[2] instanceof TestFile);
 	
 	equal(testFiles[0].name, testFile0.name);
 	equal(testFiles[1].name, testFile1.name);

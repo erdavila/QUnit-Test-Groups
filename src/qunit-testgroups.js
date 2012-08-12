@@ -58,18 +58,6 @@ var TestGroups = {
 		     ? unescape(m[1])
 		     : undefined;
 	},
-	isTestFile : function(item) {
-		var result = (typeof item == "object")
-		         &&  (item != null)
-		         &&  (item.constructor == TestFile);
-		return result;
-	},
-	isTestGroup : function(item) {
-		var result = (typeof item == "object")
-		         &&  (item != null)
-		         &&  (item.constructor == TestGroup);
-		return result;
-	},
 	outline : function(baseUrl) {
 		var outline = this._root.outline(baseUrl);
 		return outline;
@@ -122,7 +110,7 @@ TestGroup.prototype.getAllTestFiles = function() {
 TestGroup.prototype.addTestFilesToList = function(list) {
 	for(var i = 0; i < this.items.length; i++) {
 		var item = this.items[i];
-		if(TestGroups.isTestGroup(item)) {
+		if(item instanceof TestGroup) {
 			item.addTestFilesToList(list);
 		} else {
 			list.push(item);
@@ -144,7 +132,7 @@ TestGroup.prototype.searchByName = function(name) {
 		if(item.name == name) {
 			return item;
 		}
-		if(TestGroups.isTestGroup(item)) {
+		if(item instanceof TestGroup) {
 			var test = item.searchByName(name);
 			if(test) {
 				return test;
