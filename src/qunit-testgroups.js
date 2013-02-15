@@ -24,7 +24,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var TestGroups = {
 	root : function(testGroup) {
-		if(!TestGroups.isTestGroup(testGroup)) {
+		try {
+			testGroup = TestGroup.asInstance(testGroup);
+		} catch(e) {
 			throw new TypeError("Argument should be a test group");
 		}
 		TestGroups._root = testGroup;
@@ -56,18 +58,6 @@ var TestGroups = {
 		     ? unescape(m[1])
 		     : undefined;
 	},
-	isTestFile : function(item) {
-		var result = (typeof item == "object")
-		         &&  (item != null)
-		         &&  (item.constructor == TestFile);
-		return result;
-	},
-	isTestGroup : function(item) {
-		var result = (typeof item == "object")
-		         &&  (item != null)
-		         &&  (item.constructor == TestGroup);
-		return result;
-	},
 	outline : function(baseUrl) {
 		var outline = this._root.outline(baseUrl);
 		return outline;
@@ -87,12 +77,22 @@ function TestGroup(name, items) {
 	this.items = [];
 	for(var i = 0; i < items.length; i++) {
 		var item = items[i];
-		if(!TestGroups.isTestGroup(item)  &&  !TestGroups.isTestFile(item)) {
-			item = new TestFile(item.name, item.file);
+		if("file" in item) {
+			item = TestFile.asInstance(item);
+		} else {
+			item = TestGroup.asInstance(item);
 		}
 		this.items.push(item);
 	}
 }
+
+TestGroup.asInstance = function(object) {
+	if(object instanceof TestGroup) {
+		return object;
+	}
+	var testGroup = new TestGroup(object.name, object.tests);
+	return testGroup;
+};
 
 TestGroup._makeOutlineLink = function(name, baseUrl) {
 	var link = $("<a/>");
@@ -110,7 +110,7 @@ TestGroup.prototype.getAllTestFiles = function() {
 TestGroup.prototype.addTestFilesToList = function(list) {
 	for(var i = 0; i < this.items.length; i++) {
 		var item = this.items[i];
-		if(TestGroups.isTestGroup(item)) {
+		if(item instanceof TestGroup) {
 			item.addTestFilesToList(list);
 		} else {
 			list.push(item);
@@ -132,7 +132,7 @@ TestGroup.prototype.searchByName = function(name) {
 		if(item.name == name) {
 			return item;
 		}
-		if(TestGroups.isTestGroup(item)) {
+		if(item instanceof TestGroup) {
 			var test = item.searchByName(name);
 			if(test) {
 				return test;
@@ -181,6 +181,14 @@ function TestFile(name, file) {
 	this.name = name;
 	this.file = file;
 }
+
+TestFile.asInstance = function(object) {
+	if(object instanceof TestFile) {
+		return object;
+	}
+	var testFile = new TestFile(object.name, object.file);
+	return testFile;
+};
 
 TestFile.prototype.loadAndRun = function() {
 	ScriptLoader.load(this.file);
