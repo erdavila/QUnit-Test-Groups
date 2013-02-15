@@ -95,14 +95,16 @@ The resulting file should look like this:
 <head>
     <meta charset="utf-8">
     <title>Tests for My Project</title>
+    <link rel="stylesheet" href="libs/qunit-1.11.0.css">
 </head>
 <body>
     <div id="qunit"></div>
-    <script src="libs/jquery-1.7.2.min.js"></script>
-    <script src="libs/qunit.js"></script>
+    <script src="libs/jquery-1.9.1.min.js"></script>
+    <script src="libs/qunit-1.11.0.js"></script>
     <script src="libs/qunit-testgroups.js"></script>
     <script src="tests-groups.js"></script>
 </body>
+</html>
 ```
 If you open this file in a browser, all tests must be run.
 

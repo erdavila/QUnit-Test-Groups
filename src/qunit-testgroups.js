@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2012 Eduardo R. D'Avila (https://github.com/erdavila)
+Copyright (c) 2012-2013 Eduardo R. D'Avila (https://github.com/erdavila)
 
 The MIT License
 
