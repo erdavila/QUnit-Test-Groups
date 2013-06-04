@@ -62,7 +62,7 @@ var TestGroups = {
 		var outline = this._root.outline(baseUrl);
 		return outline;
 	},
-	log : (window.console ? function() { return console.log.apply(console, arguments); } : function(){}),
+	log : (window.console ? function() { return console.log.apply(console, arguments); } : function(){})
 };
 
 
@@ -277,7 +277,7 @@ ScriptLoader = {
 	reset : function() {
 		this.currentScript = null;
 		this.queue = [];
-	},
+	}
 };
 
 
